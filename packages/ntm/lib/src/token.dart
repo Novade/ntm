@@ -20,3 +20,18 @@ class Token {
     return '$type $lexeme $literal';
   }
 }
+
+class TokenError {
+  const TokenError({
+    required this.line,
+    required this.column,
+    required this.message,
+  });
+  final int line;
+  final int column;
+  final String message;
+
+  String describe() {
+    return '[$line:$column]: $message';
+  }
+}
