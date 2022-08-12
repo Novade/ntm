@@ -88,6 +88,22 @@ class Scanner {
           _match('=') ? TokenType.bangEqual : TokenType.bang,
         );
         break;
+      case '|':
+        if (_peek() == '|') {
+          _addToken(TokenType.pipePipe);
+          _advance();
+        } else {
+          _addError('Unexpected token "|"');
+        }
+        break;
+      case '&':
+        if (_peek() == '&') {
+          _addToken(TokenType.pipePipe);
+          _advance();
+        } else {
+          _addError('Unexpected token "&"');
+        }
+        break;
       case '=':
         _addToken(
           _match('=') ? TokenType.equalEqual : TokenType.equal,
@@ -136,6 +152,8 @@ class Scanner {
       default:
         if (_isDigit(character)) {
           _number();
+        } else if (_isAlpha(character)) {
+          _identifier();
         } else {
           _addError('Unexpected token "$character".');
         }
@@ -252,5 +270,24 @@ class Scanner {
       return '';
     }
     return source[_current + 1];
+  }
+
+  void _identifier() {
+    while (_isAlphaNumeric(_peek())) {
+      _advance();
+    }
+    final text = source.substring(_start, _current);
+    final tokenType = keywords[text] ?? TokenType.identifier;
+    _addToken(tokenType);
+  }
+
+  bool _isAlpha(String character) {
+    assert(character.length == 1);
+    return RegExp('[a-zA-Z_]').hasMatch(character);
+  }
+
+  bool _isAlphaNumeric(String character) {
+    assert(character.length == 1);
+    return _isAlpha(character) || _isDigit(character);
   }
 }

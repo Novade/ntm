@@ -36,7 +36,7 @@ enum TokenType {
   forKeyword,
   ifKeyword,
   nilKeyword,
-  orKeyword,
+  pipePipe,
   printKeyword,
   returnKeyword,
   superKeyword,
@@ -48,3 +48,20 @@ enum TokenType {
   /// End of file.
   eof,
 }
+
+const keywords = {
+  'class': TokenType.classKeyword,
+  'else': TokenType.elseKeyword,
+  'false': TokenType.falseKeyword,
+  'for': TokenType.forKeyword,
+  'fun': TokenType.funKeyword,
+  'if': TokenType.ifKeyword,
+  'nil': TokenType.nilKeyword,
+  'print': TokenType.printKeyword,
+  'return': TokenType.returnKeyword,
+  'super': TokenType.superKeyword,
+  'this': TokenType.thisKeyword,
+  'true': TokenType.trueKeyword,
+  'var': TokenType.varKeyword,
+  'while': TokenType.whileKeyword,
+};
