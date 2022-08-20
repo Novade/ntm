@@ -1,25 +1,49 @@
 enum TokenType {
   // Single-character tokens.
+
+  /// `(`
   leftParenthesis,
   rightParenthesis,
   leftBrace,
   rightBrace,
   comma,
   dot,
+
+  /// `-`
   minus,
+
+  /// `+`
   plus,
   semicolon,
+
+  /// `/`
   slash,
+
+  /// `*`
   star,
 
   // One or two character tokens.
+
+  /// `!`
   bang,
+
+  /// `!=`
   bangEqual,
   equal,
+
+  /// `==`
   equalEqual,
+
+  /// `>`
   greater,
+
+  /// `>=`
   greaterEqual,
+
+  /// `<`
   less,
+
+  /// `<=`
   lessEqual,
 
   // literals.
@@ -31,16 +55,23 @@ enum TokenType {
   andKeyword,
   classKeyword,
   elseKeyword,
+
+  /// `false`
   falseKeyword,
+
   funKeyword,
   forKeyword,
   ifKeyword,
-  nilKeyword,
+
+  /// `null`
+  nullKeyword,
   pipePipe,
   printKeyword,
   returnKeyword,
   superKeyword,
   thisKeyword,
+
+  /// `true`
   trueKeyword,
   varKeyword,
   whileKeyword,
@@ -56,7 +87,7 @@ const keywords = {
   'for': TokenType.forKeyword,
   'fun': TokenType.funKeyword,
   'if': TokenType.ifKeyword,
-  'nil': TokenType.nilKeyword,
+  'nil': TokenType.nullKeyword,
   'print': TokenType.printKeyword,
   'return': TokenType.returnKeyword,
   'super': TokenType.superKeyword,

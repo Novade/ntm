@@ -45,7 +45,7 @@ class LiteralExpression extends Expression {
   LiteralExpression({
     required this.value,
   });
-  Object value;
+  Object? value;
   @override
   T accept<T>(Visitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
