@@ -2,12 +2,30 @@ import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
+/// {@template ntm.parser}
+/// Has 2 jobs
+/// - Given a valid sequence of [tokens], produce a corresponding syntax tree.
+/// - Given an *invalid* sequence of [tokens], detect any errors and tell the
+///   user about their mistakes.
+/// {@endtemplate}
 class Parser {
+  /// {@macro ntm.parser}
   Parser({
     required this.tokens,
   });
   final List<Token> tokens;
+  final List<ParseError> errors = [];
+
   var _current = 0;
+
+  Expression? parse() {
+    try {
+      return _expression();
+    } on ParseError catch (error) {
+      errors.add(error);
+      return null;
+    }
+  }
 
   Expression _expression() {
     return _equality();
@@ -101,11 +119,11 @@ class Parser {
     }
     if (_match(const [TokenType.leftParenthesis])) {
       final expression = _expression();
-      _consume(TokenType.rightParenthesis, 'Exprect \')\') after expression');
+      _consume(TokenType.rightParenthesis, 'Expect \')\') after expression');
       return GroupingExpression(expression: expression);
     }
 
-    throw UnsupportedError('Unexpected token $_peek');
+    throw _error(_peek, 'Expect expression.');
   }
 
   /// This checks to see if the current token has any of the given [types]. If
@@ -119,6 +137,14 @@ class Parser {
       }
     }
     return false;
+  }
+
+  /// It’s similar to [match] in that it checks to see if the next token is of
+  /// the expected type. If so, it consumes the token and everything is groovy.
+  /// If some other token is there, then we’ve hit an error.
+  Token _consume(TokenType type, String message) {
+    if (_check(type)) return _advance();
+    throw _error(_peek, message);
   }
 
   /// The [check] method returns `true` if the current token is of the given
@@ -151,4 +177,40 @@ class Parser {
   Token get _previous {
     return tokens[_current - 1];
   }
+
+  ParseError _error(Token token, String message) {
+    final error = ParseError(token: token, message: message);
+    errors.add(error);
+    return error;
+  }
+
+  /// Discards tokens until it thinks it has found a statement boundary.
+  void _synchronize() {
+    _advance();
+    while (!_isAtEnd) {
+      if (_previous.type == TokenType.semicolon) return;
+      switch (_peek.type) {
+        case TokenType.classKeyword:
+        case TokenType.funKeyword:
+        case TokenType.varKeyword:
+        case TokenType.forKeyword:
+        case TokenType.whileKeyword:
+        case TokenType.ifKeyword:
+        case TokenType.printKeyword:
+          return;
+        default:
+          _advance();
+      }
+    }
+  }
+}
+
+class ParseError implements Exception {
+  const ParseError({
+    required this.token,
+    required this.message,
+  });
+
+  final Token token;
+  final String message;
 }

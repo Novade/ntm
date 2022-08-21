@@ -1,6 +1,9 @@
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
+/// Stores the raw source code as a simple string, walks through it and
+/// constructs [tokens] until it runs out of characters. Then it appends on
+/// final "end of file" token.
 class Scanner {
   Scanner({
     required this.source,

@@ -14,6 +14,8 @@ enum TokenType {
 
   /// `+`
   plus,
+
+  /// `;`
   semicolon,
 
   /// `/`
