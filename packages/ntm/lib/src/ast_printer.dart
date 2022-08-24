@@ -22,7 +22,6 @@ class AstPrint implements Visitor<String> {
 
   @override
   String visitLiteralExpression(LiteralExpression expression) {
-    // TODO: What is the correct check? (Empty string?)
     if (expression.value == null) {
       return 'null';
     }

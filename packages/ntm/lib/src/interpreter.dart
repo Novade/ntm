@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
 class Interpreter extends Visitor<Object?> {
+  Interpreter();
+
+  final errors = <RuntimeError>[];
+
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
     final left = _evaluate(expression.left);
@@ -95,5 +101,14 @@ class Interpreter extends Visitor<Object?> {
   /// interpreter’s visitor implementation.
   Object? _evaluate(Expression expression) {
     return expression.accept(this);
+  }
+
+  void interpret(Expression expression) {
+    try {
+      final value = _evaluate(expression);
+      stdout.writeln(value);
+    } on RuntimeError catch (error) {
+      errors.add(error);
+    }
   }
 }
