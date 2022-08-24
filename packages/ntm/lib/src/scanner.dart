@@ -2,7 +2,7 @@ import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
 /// Stores the raw source code as a simple string, walks through it and
-/// constructs [tokens] until it runs out of characters. Then it appends on
+/// constructs [_tokens] until it runs out of characters. Then it appends on
 /// final "end of file" token.
 class Scanner {
   Scanner({
@@ -10,8 +10,8 @@ class Scanner {
   });
 
   final String source;
-  final List<Token> tokens = [];
-  final List<TokenError> errors = [];
+  final List<Token> _tokens = [];
+  final List<TokenError> _errors = [];
 
   var _start = 0;
   var _current = 0;
@@ -35,21 +35,26 @@ class Scanner {
     return _current >= source.length;
   }
 
-  List<Token> scanTokens() {
+  ScanResult scanTokens() {
+    _tokens.clear();
+    _errors.clear();
     while (!_isAtEnd) {
       // We are at the beginning of the next lexeme.
       _start = _current;
       _scanToken();
     }
 
-    tokens.add(
+    _tokens.add(
       Token(
         type: TokenType.eof,
         line: _line,
         column: _column,
       ),
     );
-    return tokens;
+    return ScanResult(
+      tokens: _tokens,
+      errors: _errors,
+    );
   }
 
   void _scanToken() {
@@ -199,7 +204,7 @@ class Scanner {
 
   void _addToken(TokenType type, [Object? literal]) {
     final text = source.substring(_start, _current);
-    tokens.add(
+    _tokens.add(
       Token(
         type: type,
         literal: literal,
@@ -211,7 +216,7 @@ class Scanner {
   }
 
   void _addError(String message) {
-    errors.add(
+    _errors.add(
       TokenError(
         line: _line,
         column: _column,
@@ -295,4 +300,14 @@ class Scanner {
     assert(character.length == 1);
     return _isAlpha(character) || _isDigit(character);
   }
+}
+
+class ScanResult {
+  const ScanResult({
+    this.tokens = const [],
+    this.errors = const [],
+  });
+
+  final List<Token> tokens;
+  final List<TokenError> errors;
 }

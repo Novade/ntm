@@ -9,30 +9,27 @@ class Ntm {
 
   final interpreter = Interpreter();
 
-  Scanner? scanner;
-
-  Parser? parser;
-
   void run(String script) {
     interpreter.errors.clear();
-    scanner = Scanner(source: script)..scanTokens();
-    if (scanner!.errors.isNotEmpty) {
-      for (final error in scanner!.errors) {
+    final scanner = Scanner(source: script);
+    final scanResult = scanner.scanTokens();
+    if (scanResult.errors.isNotEmpty) {
+      for (final error in scanResult.errors) {
         stderr.writeln(error.describe());
       }
       return;
     }
-    parser = Parser(tokens: scanner!.tokens);
+    final parser = Parser(tokens: scanResult.tokens);
 
-    final expression = parser!.parse();
+    final parseResult = parser.parse();
 
-    if (parser!.errors.isNotEmpty) {
-      for (final error in parser!.errors) {
+    if (parseResult.errors.isNotEmpty) {
+      for (final error in parseResult.errors) {
         stderr.writeln(error.describe());
       }
-      return;
     }
-    interpreter.interpret(expression!);
+    if (parseResult.expression == null) return;
+    interpreter.interpret(parseResult.expression!);
 
     if (interpreter.errors.isNotEmpty) {
       for (final error in interpreter.errors) {

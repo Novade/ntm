@@ -15,17 +15,22 @@ class Parser {
     required this.tokens,
   });
   final List<Token> tokens;
-  final List<ParseError> errors = [];
+  final List<ParseError> _errors = [];
 
   var _current = 0;
 
-  Expression? parse() {
-    errors.clear();
+  ParseResult parse() {
+    _errors.clear();
     try {
-      return _expression();
+      return ParseResult(
+        expression: _expression(),
+        errors: _errors,
+      );
     } on ParseError catch (error) {
-      errors.add(error);
-      return null;
+      _errors.add(error);
+      return ParseResult(
+        errors: _errors,
+      );
     }
   }
 
@@ -182,7 +187,7 @@ class Parser {
 
   ParseError _error(Token token, String message) {
     final error = ParseError(token: token, message: message);
-    errors.add(error);
+    _errors.add(error);
     return error;
   }
 
@@ -205,6 +210,16 @@ class Parser {
       }
     }
   }
+}
+
+class ParseResult {
+  const ParseResult({
+    this.expression,
+    this.errors = const [],
+  });
+
+  final Expression? expression;
+  final List<ParseError> errors;
 }
 
 class ParseError extends DescriptiveError {
