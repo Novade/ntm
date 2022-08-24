@@ -1,3 +1,4 @@
+import 'package:ntm/src/descriptive_error.dart';
 import 'package:ntm/src/token_type.dart';
 
 /// Stores the information about a token.
@@ -21,7 +22,7 @@ class Token {
   }
 }
 
-class TokenError {
+class TokenError extends DescriptiveError {
   const TokenError({
     required this.line,
     required this.column,
@@ -31,6 +32,7 @@ class TokenError {
   final int column;
   final String message;
 
+  @override
   String describe() {
     return '[$line:$column]: $message';
   }

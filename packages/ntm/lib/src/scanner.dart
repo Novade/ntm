@@ -189,8 +189,10 @@ class Scanner {
   /// use peek only one or two characters ahead.
   String _peek() {
     if (_isAtEnd) {
-      // TODO: What to return?
-      return '';
+      // A new line at the end of the file seems legit. This verifies the
+      // asserts `character.length == 1`, which would fail if we were returning
+      // `''`.
+      return '\n';
     }
     return source[_current];
   }
@@ -238,7 +240,7 @@ class Scanner {
   }
 
   bool _isDigit(String character) {
-    assert(character.length == 1);
+    assert(character.length == 1, '"$character" is not of length 1.');
     return RegExp('[0-9]').hasMatch(character);
   }
 

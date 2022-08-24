@@ -1,5 +1,5 @@
 library ntm;
 
-export 'src/ntm_base.dart';
+export 'src/ntm.dart';
 
 // TODO: Export any libraries intended for clients of this package.

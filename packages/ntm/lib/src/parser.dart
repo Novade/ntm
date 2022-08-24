@@ -1,3 +1,4 @@
+import 'package:ntm/src/descriptive_error.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
@@ -19,6 +20,7 @@ class Parser {
   var _current = 0;
 
   Expression? parse() {
+    errors.clear();
     try {
       return _expression();
     } on ParseError catch (error) {
@@ -205,7 +207,7 @@ class Parser {
   }
 }
 
-class ParseError implements Exception {
+class ParseError extends DescriptiveError {
   const ParseError({
     required this.token,
     required this.message,
@@ -213,4 +215,15 @@ class ParseError implements Exception {
 
   final Token token;
   final String message;
+
+  @override
+  String describe() {
+    final String where;
+    if (token.type == TokenType.eof) {
+      where = 'at end';
+    } else {
+      where = 'at "${token.lexeme}"';
+    }
+    return '[line ${token.line}:${token.column}] Error $where: $message';
+  }
 }

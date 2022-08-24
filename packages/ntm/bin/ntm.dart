@@ -1,5 +1,9 @@
 import 'dart:io';
 
+import 'package:ntm/ntm.dart';
+
+final _ntm = Ntm();
+
 void main(List<String> arguments) {
   exitCode = 0; // Presume success.
 
@@ -25,7 +29,6 @@ void _runPrompt() {
   while (true) {
     stdout.write('[ntm] > ');
     final line = stdin.readLineSync();
-    print('line: $line');
     if (line == null) {
       break;
     }
@@ -35,7 +38,7 @@ void _runPrompt() {
 }
 
 void _run(String script) {
-  stdout.writeln('script: $script');
+  _ntm.run(script);
 }
 
 void _error(int line, String message) {
