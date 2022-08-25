@@ -28,8 +28,7 @@ class Ntm {
         stderr.writeln(error.describe());
       }
     }
-    if (parseResult.expression == null) return;
-    interpreter.interpret(parseResult.expression!);
+    interpreter.interpret(parseResult.statements);
 
     if (interpreter.errors.isNotEmpty) {
       for (final error in interpreter.errors) {

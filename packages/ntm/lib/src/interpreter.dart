@@ -2,10 +2,14 @@ import 'dart:io';
 
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/runtime_error.dart';
+import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
-class Interpreter extends Visitor<Object?> {
+/// Unlike expressions, statements produce no values, so the return type of the
+/// visit methods is `void`, not [Object?].
+class Interpreter
+    implements ExpressionVisitor<Object?>, StatementVisitor<void> {
   Interpreter();
 
   final errors = <RuntimeError>[];
@@ -103,10 +107,26 @@ class Interpreter extends Visitor<Object?> {
     return expression.accept(this);
   }
 
-  void interpret(Expression expression) {
+  void _execute(Statement statement) {
+    statement.accept(this);
+  }
+
+  @override
+  void visitExpressionStatement(ExpressionStatement statement) {
+    _evaluate(statement.expression);
+  }
+
+  @override
+  void visitPrintStatement(PrintStatement statement) {
+    final value = _evaluate(statement.expression);
+    stdout.writeln(value);
+  }
+
+  void interpret(Iterable<Statement> statements) {
     try {
-      final value = _evaluate(expression);
-      stdout.writeln(value);
+      for (final statement in statements) {
+        _execute(statement);
+      }
     } on RuntimeError catch (error) {
       errors.add(error);
     }

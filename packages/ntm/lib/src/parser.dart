@@ -1,5 +1,6 @@
 import 'package:ntm/src/descriptive_error.dart';
 import 'package:ntm/src/expression.dart';
+import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
 import 'package:ntm/src/token_type.dart';
 
@@ -21,21 +22,39 @@ class Parser {
 
   ParseResult parse() {
     _errors.clear();
-    try {
-      return ParseResult(
-        expression: _expression(),
-        errors: _errors,
-      );
-    } on ParseError catch (error) {
-      _errors.add(error);
-      return ParseResult(
-        errors: _errors,
-      );
+    final statements = <Statement>[];
+    while (!_isAtEnd) {
+      statements.add(_statement());
     }
+
+    return ParseResult(
+      statements: statements,
+      errors: _errors,
+    );
   }
 
   Expression _expression() {
     return _equality();
+  }
+
+  Statement _statement() {
+    if (_match(const [TokenType.printKeyword])) return _printStatement();
+    return _expressionStatement();
+  }
+
+  Statement _expressionStatement() {
+    final expression = _expression();
+    _consume(TokenType.semicolon, 'Expect ";" after expression.');
+    return ExpressionStatement(expression);
+  }
+
+  /// Since we already matched and consumed the `print` token itself, we don’t
+  /// need to do that here. We parse the subsequent expression, consume the
+  /// terminating semicolon, and emit the syntax tree.
+  Statement _printStatement() {
+    final value = _expression();
+    _consume(TokenType.semicolon, 'Expect ";" after value.');
+    return PrintStatement(value);
   }
 
   Expression _equality() {
@@ -214,11 +233,11 @@ class Parser {
 
 class ParseResult {
   const ParseResult({
-    this.expression,
+    this.statements = const [],
     this.errors = const [],
   });
 
-  final Expression? expression;
+  final List<Statement> statements;
   final List<ParseError> errors;
 }
 

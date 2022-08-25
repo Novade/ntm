@@ -1,7 +1,7 @@
 import 'package:ntm/src/token.dart';
 
-abstract class Visitor<T> {
-  const Visitor();
+abstract class ExpressionVisitor<T> {
+  const ExpressionVisitor();
 
   T visitBinaryExpression(BinaryExpression expression);
   T visitGroupingExpression(GroupingExpression expression);
@@ -10,7 +10,7 @@ abstract class Visitor<T> {
 }
 
 abstract class Expression {
-  T accept<T>(Visitor<T> visitor);
+  T accept<T>(ExpressionVisitor<T> visitor);
 }
 
 class BinaryExpression extends Expression {
@@ -24,7 +24,7 @@ class BinaryExpression extends Expression {
   Token operator;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitBinaryExpression(this);
   }
 }
@@ -36,7 +36,7 @@ class GroupingExpression extends Expression {
   Expression expression;
 
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitGroupingExpression(this);
   }
 }
@@ -47,7 +47,7 @@ class LiteralExpression extends Expression {
   });
   Object? value;
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
   }
 }
@@ -60,7 +60,7 @@ class UnaryExpression extends Expression {
   Expression right;
   Token operator;
   @override
-  T accept<T>(Visitor<T> visitor) {
+  T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitUnaryExpression(this);
   }
 }
