@@ -24,7 +24,10 @@ class Parser {
     _errors.clear();
     final statements = <Statement>[];
     while (!_isAtEnd) {
-      statements.add(_statement());
+      final statement = _declaration();
+      if (statement != null) {
+        statements.add(statement);
+      }
     }
 
     return ParseResult(
@@ -35,6 +38,16 @@ class Parser {
 
   Expression _expression() {
     return _equality();
+  }
+
+  Statement? _declaration() {
+    try {
+      if (_match(const [TokenType.varKeyword])) return _varDeclaration();
+      return _statement();
+    } on ParseError {
+      _synchronize();
+    }
+    return null;
   }
 
   Statement _statement() {
@@ -55,6 +68,22 @@ class Parser {
     final value = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after value.');
     return PrintStatement(value);
+  }
+
+  Statement _varDeclaration() {
+    final name = _consume(TokenType.identifier, 'Expect a variable name.');
+
+    final Expression? initializer;
+    if (_match(const [TokenType.equal])) {
+      initializer = _expression();
+    } else {
+      initializer = null;
+    }
+    _consume(TokenType.semicolon, 'Expect ";" after a variable declaration.');
+    return VarStatement(
+      name: name,
+      initializer: initializer,
+    );
   }
 
   Expression _equality() {
@@ -142,6 +171,9 @@ class Parser {
 
     if (_match(const [TokenType.number, TokenType.string])) {
       return LiteralExpression(value: _previous.literal);
+    }
+    if (_match(const [TokenType.identifier])) {
+      return VariableExpression(_previous);
     }
     if (_match(const [TokenType.leftParenthesis])) {
       final expression = _expression();

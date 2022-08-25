@@ -7,21 +7,23 @@ abstract class ExpressionVisitor<T> {
   T visitGroupingExpression(GroupingExpression expression);
   T visitLiteralExpression(LiteralExpression expression);
   T visitUnaryExpression(UnaryExpression expression);
+  T visitVariableExpression(VariableExpression expression);
 }
 
 abstract class Expression {
+  const Expression();
   T accept<T>(ExpressionVisitor<T> visitor);
 }
 
 class BinaryExpression extends Expression {
-  BinaryExpression({
+  const BinaryExpression({
     required this.left,
     required this.right,
     required this.operator,
   });
-  Expression left;
-  Expression right;
-  Token operator;
+  final Expression left;
+  final Expression right;
+  final Token operator;
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
@@ -30,10 +32,10 @@ class BinaryExpression extends Expression {
 }
 
 class GroupingExpression extends Expression {
-  GroupingExpression({
+  const GroupingExpression({
     required this.expression,
   });
-  Expression expression;
+  final Expression expression;
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
@@ -42,10 +44,10 @@ class GroupingExpression extends Expression {
 }
 
 class LiteralExpression extends Expression {
-  LiteralExpression({
+  const LiteralExpression({
     required this.value,
   });
-  Object? value;
+  final Object? value;
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
@@ -53,14 +55,27 @@ class LiteralExpression extends Expression {
 }
 
 class UnaryExpression extends Expression {
-  UnaryExpression({
+  const UnaryExpression({
     required this.right,
     required this.operator,
   });
-  Expression right;
-  Token operator;
+  final Expression right;
+  final Token operator;
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitUnaryExpression(this);
+  }
+}
+
+class VariableExpression extends Expression {
+  const VariableExpression(
+    this.name,
+  );
+
+  final Token name;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitVariableExpression(this);
   }
 }

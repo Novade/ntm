@@ -47,4 +47,10 @@ class AstPrint implements ExpressionVisitor<String> {
     buffer.write(')');
     return buffer.toString();
   }
+
+  @override
+  String visitVariableExpression(VariableExpression expression) {
+    // TODO: implement visitVariableExpression
+    throw UnimplementedError();
+  }
 }

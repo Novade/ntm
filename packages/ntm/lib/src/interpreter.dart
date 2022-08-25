@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/statement.dart';
@@ -13,6 +14,8 @@ class Interpreter
   Interpreter();
 
   final errors = <RuntimeError>[];
+
+  final _environment = Environment();
 
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
@@ -130,5 +133,21 @@ class Interpreter
     } on RuntimeError catch (error) {
       errors.add(error);
     }
+  }
+
+  @override
+  void visitVarStatement(VarStatement statement) {
+    late final Object? value;
+    if (statement.initializer != null) {
+      value = _evaluate(statement.initializer!);
+    } else {
+      value = null;
+    }
+    _environment.define(statement.name.lexeme, value);
+  }
+
+  @override
+  Object? visitVariableExpression(VariableExpression expression) {
+    return _environment.get(expression.name);
   }
 }

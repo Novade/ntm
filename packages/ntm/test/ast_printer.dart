@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 void main() {
   test('It should pretty print the ast', () {
-    final expression = BinaryExpression(
+    const expression = BinaryExpression(
       left: UnaryExpression(
         operator: Token(
           type: TokenType.minus,
