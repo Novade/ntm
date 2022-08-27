@@ -13,6 +13,7 @@ abstract class StatementVisitor<T> {
   T visitExpressionStatement(ExpressionStatement statement);
   T visitPrintStatement(PrintStatement statement);
   T visitVarStatement(VarStatement statement);
+  T visitBlockStatement(BlockStatement statement);
 }
 
 class ExpressionStatement extends Statement {
@@ -49,5 +50,18 @@ class VarStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitVarStatement(this);
+  }
+}
+
+class BlockStatement extends Statement {
+  const BlockStatement({
+    this.statements = const [],
+  });
+
+  final Iterable<Statement> statements;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitBlockStatement(this);
   }
 }

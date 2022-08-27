@@ -12,10 +12,10 @@ void main() {
     final stderr = _MockStdout();
     IOOverrides.runZoned(
       () {
-        Ntm().run('1 == 1');
+        Ntm().run('print 1 == 1;');
       },
       stdout: () => stdout,
-      stderr: () => stdout,
+      stderr: () => stderr,
     );
 
     verify(() => stdout.writeln(true)).called(1);
@@ -26,13 +26,86 @@ void main() {
     final stderr = _MockStdout();
     IOOverrides.runZoned(
       () {
-        Ntm().run('1 != 1');
+        Ntm().run('print 1 != 1;');
       },
       stdout: () => stdout,
-      stderr: () => stdout,
+      stderr: () => stderr,
     );
 
     verify(() => stdout.writeln(false)).called(1);
     verifyNever(() => stderr.writeln(any()));
+  });
+
+  group('Scope', () {
+    test('It should scope variables', () {
+      final stdout = _MockStdout();
+      final stderr = _MockStdout();
+      IOOverrides.runZoned(
+        () {
+          Ntm().run('''
+var a = 'global a';
+var b = 'global b';
+var c = 'global c';
+{
+  var a = 'outer a';
+  var b = 'outer b';
+  {
+    var a = 'inner a';
+    print a;
+    print b;
+    print c;
+  }
+  print a;
+  print b;
+  print c;
+}
+print a;
+print b;
+print c;
+''');
+        },
+        stdout: () => stdout,
+        stderr: () => stderr,
+      );
+
+      final stdoutCaptured =
+          verify(() => stdout.writeln(captureAny())).captured;
+      expect(stdoutCaptured.join('\n'), '''
+inner a
+outer b
+global c
+outer a
+outer b
+global c
+global a
+global b
+global c''');
+      verifyNever(() => stderr.writeln(any()));
+    });
+  });
+
+  group('Variable', () {
+    test(
+      'It should throw an error when a declared variable is being accessed without being assigned first',
+      () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+var a;
+print a;
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(() => stderr.writeln('''
+The variable "a" was declared but never assigned.
+[2:7]''')).called(1);
+      },
+    );
   });
 }

@@ -53,8 +53,16 @@ class Parser {
     return null;
   }
 
+  /// ```
+  /// statement -> expressionStatement
+  ///            | printStatement
+  ///            | block ;
+  /// ```
   Statement _statement() {
     if (_match(const [TokenType.printKeyword])) return _printStatement();
+    if (_match(const [TokenType.leftBrace])) {
+      return BlockStatement(statements: _block());
+    }
     return _expressionStatement();
   }
 
@@ -62,6 +70,21 @@ class Parser {
     final expression = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after expression.');
     return ExpressionStatement(expression);
+  }
+
+  /// ```
+  /// block -> "{" declaration* "}"
+  /// ```
+  List<Statement> _block() {
+    final statements = <Statement>[];
+    while (!_check(TokenType.rightBrace) && !_isAtEnd) {
+      final declaration = _declaration();
+      if (declaration != null) {
+        statements.add(declaration);
+      }
+    }
+    _consume(TokenType.rightBrace, 'Expect a "}" after block.');
+    return statements;
   }
 
   /// ```

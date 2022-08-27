@@ -4,7 +4,11 @@ enum TokenType {
   /// `(`
   leftParenthesis,
   rightParenthesis,
+
+  /// `{`
   leftBrace,
+
+  /// `}`
   rightBrace,
   comma,
   dot,

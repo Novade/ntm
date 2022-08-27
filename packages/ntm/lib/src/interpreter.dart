@@ -15,7 +15,7 @@ class Interpreter
 
   final errors = <RuntimeError>[];
 
-  final _environment = Environment();
+  var _environment = Environment();
 
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
@@ -114,6 +114,23 @@ class Interpreter
     statement.accept(this);
   }
 
+  void _executeBlock(Iterable<Statement> statements, Environment environment) {
+    final previousEnvironment = _environment;
+    try {
+      _environment = environment;
+      for (final statement in statements) {
+        _execute(statement);
+      }
+    } finally {
+      _environment = previousEnvironment;
+    }
+  }
+
+  @override
+  void visitBlockStatement(BlockStatement statement) {
+    _executeBlock(statement.statements, Environment(enclosing: _environment));
+  }
+
   @override
   void visitExpressionStatement(ExpressionStatement statement) {
     _evaluate(statement.expression);
@@ -137,13 +154,15 @@ class Interpreter
 
   @override
   void visitVarStatement(VarStatement statement) {
-    late final Object? value;
     if (statement.initializer != null) {
-      value = _evaluate(statement.initializer!);
+      final value = _evaluate(statement.initializer!);
+      _environment.define(
+        statement.name.lexeme,
+        value,
+      );
     } else {
-      value = null;
+      _environment.declare(statement.name.lexeme);
     }
-    _environment.define(statement.name.lexeme, value);
   }
 
   @override
