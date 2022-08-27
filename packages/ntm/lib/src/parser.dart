@@ -55,10 +55,12 @@ class Parser {
 
   /// ```
   /// statement -> expressionStatement
+  ///            | ifStatement
   ///            | printStatement
   ///            | block ;
   /// ```
   Statement _statement() {
+    if (_match(const [TokenType.ifKeyword])) return _ifStatement();
     if (_match(const [TokenType.printKeyword])) return _printStatement();
     if (_match(const [TokenType.leftBrace])) {
       return BlockStatement(statements: _block());
@@ -70,6 +72,28 @@ class Parser {
     final expression = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after expression.');
     return ExpressionStatement(expression);
+  }
+
+  /// ```
+  /// ifStatement -> 'if' '(' expression ')' statement
+  ///              ( 'else' statement )? ;
+  /// ```
+  Statement _ifStatement() {
+    _consume(TokenType.leftParenthesis, 'Expect "(" after "if".');
+    final condition = _expression();
+    _consume(TokenType.rightParenthesis, 'Expect ")" after if condition.');
+    final thenBranch = _statement();
+    late final Statement? elseBranch;
+    if (_match(const [TokenType.elseKeyword])) {
+      elseBranch = _statement();
+    } else {
+      elseBranch = null;
+    }
+    return IfStatement(
+      condition: condition,
+      thenBranch: thenBranch,
+      elseBranch: elseBranch,
+    );
   }
 
   /// ```
@@ -211,7 +235,7 @@ class Parser {
       return LiteralExpression(value: false);
     }
     if (_match(const [TokenType.trueKeyword])) {
-      return LiteralExpression(value: false);
+      return LiteralExpression(value: true);
     }
     if (_match(const [TokenType.nullKeyword])) {
       return LiteralExpression(value: null);

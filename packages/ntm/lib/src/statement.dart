@@ -14,6 +14,7 @@ abstract class StatementVisitor<T> {
   T visitPrintStatement(PrintStatement statement);
   T visitVarStatement(VarStatement statement);
   T visitBlockStatement(BlockStatement statement);
+  T visitIfStatement(IfStatement statement);
 }
 
 class ExpressionStatement extends Statement {
@@ -63,5 +64,22 @@ class BlockStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitBlockStatement(this);
+  }
+}
+
+class IfStatement extends Statement {
+  const IfStatement({
+    required this.condition,
+    required this.thenBranch,
+    this.elseBranch,
+  });
+
+  final Expression condition;
+  final Statement thenBranch;
+  final Statement? elseBranch;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitIfStatement(this);
   }
 }

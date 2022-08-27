@@ -137,6 +137,15 @@ class Interpreter
   }
 
   @override
+  void visitIfStatement(IfStatement statement) {
+    if (_isTruthy(_evaluate(statement.condition))) {
+      _execute(statement.thenBranch);
+    } else if (statement.elseBranch != null) {
+      _execute(statement.elseBranch!);
+    }
+  }
+
+  @override
   void visitPrintStatement(PrintStatement statement) {
     final value = _evaluate(statement.expression);
     stdout.writeln(value);

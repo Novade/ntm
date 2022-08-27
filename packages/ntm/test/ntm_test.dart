@@ -108,4 +108,43 @@ The variable "a" was declared but never assigned.
       },
     );
   });
+
+  group('Control flow', () {
+    group('if', () {
+      test('it should evaluate the correct branch', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+if (true) {
+  print 'then 1';
+} else {
+  print 'else 1';
+}
+
+if (false) {
+  print 'then 2';
+} else {
+  print 'else 2';
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        final stdoutCaptured = verify(
+          () => stdout.writeln(captureAny()),
+        ).captured;
+        expect(
+            stdoutCaptured,
+            orderedEquals(
+              ['then 1', 'else 2'],
+            ));
+
+        verifyNever(() => stderr.writeln(any()));
+      });
+    });
+  });
 }

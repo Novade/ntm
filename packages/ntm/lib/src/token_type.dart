@@ -60,6 +60,8 @@ enum TokenType {
   // keywords.
   andKeyword,
   classKeyword,
+
+  /// `else`
   elseKeyword,
 
   /// `false`
@@ -67,11 +69,15 @@ enum TokenType {
 
   funKeyword,
   forKeyword,
+
+  /// `if`
   ifKeyword,
 
   /// `null`
   nullKeyword,
   pipePipe,
+
+  /// `print`
   printKeyword,
   returnKeyword,
   superKeyword,
