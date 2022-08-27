@@ -8,6 +8,7 @@ abstract class ExpressionVisitor<T> {
   T visitLiteralExpression(LiteralExpression expression);
   T visitUnaryExpression(UnaryExpression expression);
   T visitVariableExpression(VariableExpression expression);
+  T visitAssignExpression(AssignExpression expression);
 }
 
 abstract class Expression {
@@ -77,5 +78,20 @@ class VariableExpression extends Expression {
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitVariableExpression(this);
+  }
+}
+
+class AssignExpression extends Expression {
+  const AssignExpression({
+    required this.name,
+    required this.value,
+  });
+
+  final Token name;
+  final Expression value;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitAssignExpression(this);
   }
 }

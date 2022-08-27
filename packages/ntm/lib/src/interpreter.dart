@@ -150,4 +150,11 @@ class Interpreter
   Object? visitVariableExpression(VariableExpression expression) {
     return _environment.get(expression.name);
   }
+
+  @override
+  Object? visitAssignExpression(AssignExpression expression) {
+    final value = _evaluate(expression.value);
+    _environment.assign(expression.name, value);
+    return value;
+  }
 }

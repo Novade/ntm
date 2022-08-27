@@ -36,8 +36,11 @@ class Parser {
     );
   }
 
+  /// ```
+  /// expression -> assignment ;
+  /// ```
   Expression _expression() {
-    return _equality();
+    return _assignment();
   }
 
   Statement? _declaration() {
@@ -59,6 +62,28 @@ class Parser {
     final expression = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after expression.');
     return ExpressionStatement(expression);
+  }
+
+  /// ```
+  /// assignment -> IDENTIFIER "=" assignment
+  ///             | equality ;
+  /// ```
+  Expression _assignment() {
+    final expression = _equality();
+    if (_match(const [TokenType.equal])) {
+      final equals = _previous;
+      final value = _assignment();
+
+      if (expression is VariableExpression) {
+        return AssignExpression(
+          name: expression.name,
+          value: value,
+        );
+      }
+
+      _error(equals, 'Invalid assignment target.');
+    }
+    return expression;
   }
 
   /// Since we already matched and consumed the `print` token itself, we don’t

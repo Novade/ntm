@@ -17,4 +17,15 @@ class Environment {
       message: 'Undefined variable "${name.lexeme}".',
     );
   }
+
+  void assign(Token name, Object? value) {
+    if (_values.containsKey(name.lexeme)) {
+      _values[name.lexeme] = value;
+      return;
+    }
+    throw RuntimeError(
+      token: name,
+      message: 'Undefined variable "${name.lexeme}".',
+    );
+  }
 }

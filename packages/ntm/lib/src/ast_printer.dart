@@ -53,4 +53,10 @@ class AstPrint implements ExpressionVisitor<String> {
     // TODO: implement visitVariableExpression
     throw UnimplementedError();
   }
+
+  @override
+  String visitAssignExpression(AssignExpression expression) {
+    // TODO: implement visitAssignExpression
+    throw UnimplementedError();
+  }
 }
