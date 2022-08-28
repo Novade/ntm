@@ -74,6 +74,18 @@ class Interpreter
   }
 
   @override
+  Object? visitLogicalExpression(LogicalExpression expression) {
+    final left = _evaluate(expression.left);
+
+    if (expression.operator.type == TokenType.pipePipe) {
+      if (_isTruthy(left)) return left;
+    } else {
+      if (!_isTruthy(left)) return left;
+    }
+    return _evaluate(expression.right);
+  }
+
+  @override
   Object? visitUnaryExpression(UnaryExpression expression) {
     final right = _evaluate(expression.right);
     switch (expression.operator.type) {

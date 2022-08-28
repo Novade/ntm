@@ -52,13 +52,18 @@ enum TokenType {
   /// `<=`
   lessEqual,
 
+  /// `||`
+  pipePipe,
+
+  /// `&&`
+  andAnd,
+
   // literals.
   identifier,
   string,
   number,
 
   // keywords.
-  andKeyword,
   classKeyword,
 
   /// `else`
@@ -75,7 +80,6 @@ enum TokenType {
 
   /// `null`
   nullKeyword,
-  pipePipe,
 
   /// `print`
   printKeyword,
@@ -99,7 +103,7 @@ const keywords = {
   'for': TokenType.forKeyword,
   'fun': TokenType.funKeyword,
   'if': TokenType.ifKeyword,
-  'nil': TokenType.nullKeyword,
+  'null': TokenType.nullKeyword,
   'print': TokenType.printKeyword,
   'return': TokenType.returnKeyword,
   'super': TokenType.superKeyword,

@@ -106,7 +106,7 @@ class Scanner {
         break;
       case '&':
         if (_peek() == '&') {
-          _addToken(TokenType.pipePipe);
+          _addToken(TokenType.andAnd);
           _advance();
         } else {
           _addError('Unexpected token "&"');

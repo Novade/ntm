@@ -6,6 +6,7 @@ abstract class ExpressionVisitor<T> {
   T visitBinaryExpression(BinaryExpression expression);
   T visitGroupingExpression(GroupingExpression expression);
   T visitLiteralExpression(LiteralExpression expression);
+  T visitLogicalExpression(LogicalExpression expression);
   T visitUnaryExpression(UnaryExpression expression);
   T visitVariableExpression(VariableExpression expression);
   T visitAssignExpression(AssignExpression expression);
@@ -52,6 +53,23 @@ class LiteralExpression extends Expression {
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
+  }
+}
+
+class LogicalExpression extends Expression {
+  const LogicalExpression({
+    required this.left,
+    required this.operator,
+    required this.right,
+  });
+
+  final Expression left;
+  final Token operator;
+  final Expression right;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitLogicalExpression(this);
   }
 }
 

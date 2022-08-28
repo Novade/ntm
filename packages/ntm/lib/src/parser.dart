@@ -113,10 +113,10 @@ class Parser {
 
   /// ```
   /// assignment -> IDENTIFIER "=" assignment
-  ///             | equality ;
+  ///             | logical_or ;
   /// ```
   Expression _assignment() {
-    final expression = _equality();
+    final expression = _or();
     if (_match(const [TokenType.equal])) {
       final equals = _previous;
       final value = _assignment();
@@ -129,6 +129,41 @@ class Parser {
       }
 
       _error(equals, 'Invalid assignment target.');
+    }
+    return expression;
+  }
+
+  /// ```
+  /// logical_or -> logical_and ( 'or' logical_and )* ;
+  /// ```
+  Expression _or() {
+    var expression = _and();
+
+    while (_match(const [TokenType.pipePipe])) {
+      final operator = _previous;
+      final right = _and();
+      expression = LogicalExpression(
+        left: expression,
+        operator: operator,
+        right: right,
+      );
+    }
+    return expression;
+  }
+
+  /// ```
+  /// logical_and -> equality ( 'and' equality )* ;
+  /// ```
+  Expression _and() {
+    var expression = _equality();
+    while (_match(const [TokenType.andAnd])) {
+      final operator = _previous;
+      final right = _equality();
+      expression = LogicalExpression(
+        left: expression,
+        operator: operator,
+        right: right,
+      );
     }
     return expression;
   }

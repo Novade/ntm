@@ -147,4 +147,40 @@ if (false) {
       });
     });
   });
+
+  group('Logical operators', () {
+    for (final left in const [true, false]) {
+      for (final right in const [true, false]) {
+        test('$left || $right should evaluate to ${left || right}', () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('print $left || $right;');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          verify(() => stdout.writeln(left || right)).called(1);
+          verifyNever(() => stderr.writeln(any()));
+        });
+
+        test('$left && $right should evaluate to ${left && right}', () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('print $left && $right;');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          verify(() => stdout.writeln(left && right)).called(1);
+          verifyNever(() => stderr.writeln(any()));
+        });
+      }
+    }
+  });
 }
