@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ntm/src/collable.dart';
 import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/runtime_error.dart';
@@ -61,6 +62,30 @@ class Interpreter
         // Unreachable.
         return null;
     }
+  }
+
+  @override
+  Object? visitCallExpression(CallExpression expression) {
+    final callee = _evaluate(expression.callee);
+
+    final arguments = expression.arguments.map(_evaluate);
+
+    if (callee is! Callable) {
+      throw RuntimeError(
+        token: expression.closingParenthesis,
+        message: 'Can only call functions and classes.',
+      );
+    }
+
+    if (arguments.length != callee.arity) {
+      throw RuntimeError(
+        token: expression.closingParenthesis,
+        message:
+            'Expected ${callee.arity} arguments but got ${arguments.length}.',
+      );
+    }
+
+    return callee.call(this, arguments);
   }
 
   @override

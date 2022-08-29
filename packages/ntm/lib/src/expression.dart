@@ -4,6 +4,7 @@ abstract class ExpressionVisitor<T> {
   const ExpressionVisitor();
 
   T visitBinaryExpression(BinaryExpression expression);
+  T visitCallExpression(CallExpression expression);
   T visitGroupingExpression(GroupingExpression expression);
   T visitLiteralExpression(LiteralExpression expression);
   T visitLogicalExpression(LogicalExpression expression);
@@ -30,6 +31,26 @@ class BinaryExpression extends Expression {
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitBinaryExpression(this);
+  }
+}
+
+class CallExpression extends Expression {
+  const CallExpression({
+    required this.callee,
+    required this.closingParenthesis,
+    required this.arguments,
+  });
+
+  final Expression callee;
+
+  /// The token for the closing parenthesis. We use that token’s location when
+  /// we report a runtime error caused by a function call.
+  final Token closingParenthesis;
+  final List<Expression> arguments;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitCallExpression(this);
   }
 }
 

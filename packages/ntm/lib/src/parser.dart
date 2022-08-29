@@ -355,6 +355,9 @@ class Parser {
     return expression;
   }
 
+  /// ```
+  /// unary -> ( '!' | '-' ) unary | call ;
+  /// ```
   Expression _unary() {
     if (_match(const [TokenType.bang, TokenType.minus])) {
       final operator = _previous;
@@ -364,7 +367,54 @@ class Parser {
         right: right,
       );
     }
-    return _primary();
+    return _call();
+  }
+
+  /// This is more or less the `arguments` grammar rule translated to code,
+  /// except that we also handle the zero-argument case. We check for that case
+  /// first by seeing if the next token is `)`. If it is, we don’t try to parse
+  /// any arguments.
+  ///
+  /// Otherwise, we parse an expression, then look for a comma indicating that
+  /// there is another argument after that. We keep doing that as long as we
+  /// find commas after each expression. When we don’t find a comma, then the
+  /// argument list must be done and we consume the expected closing
+  /// parenthesis. Finally, we wrap the callee and those arguments up into a
+  /// call AST node.
+  Expression _finishCall(Expression callee) {
+    final arguments = <Expression>[];
+    if (!_check(TokenType.rightParenthesis)) {
+      do {
+        arguments.add(_expression());
+      } while (_match(const [TokenType.comma]));
+    }
+
+    final closingParenthesis = _consume(
+      TokenType.rightParenthesis,
+      'Expect ")" after arguments.',
+    );
+
+    return CallExpression(
+      callee: callee,
+      closingParenthesis: closingParenthesis,
+      arguments: arguments,
+    );
+  }
+
+  /// ```
+  /// call -> primary ( '(' arguments? ')' )* ;
+  /// arguments -> expression ( ',', expression )* ;
+  /// ```
+  Expression _call() {
+    var expression = _primary();
+    while (true) {
+      if (_match(const [TokenType.leftParenthesis])) {
+        expression = _finishCall(expression);
+      } else {
+        break;
+      }
+    }
+    return expression;
   }
 
   Expression _primary() {
