@@ -1,8 +1,9 @@
 import 'dart:io';
 
-import 'package:ntm/src/collable.dart';
+import 'package:ntm/src/callable.dart';
 import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
+import 'package:ntm/src/native_functions.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
@@ -12,11 +13,14 @@ import 'package:ntm/src/token_type.dart';
 /// visit methods is `void`, not [Object?].
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
-  Interpreter();
+  Interpreter() {
+    globals.define('clock', const Clock());
+  }
 
   final errors = <RuntimeError>[];
 
-  var _environment = Environment();
+  final globals = Environment();
+  late var _environment = globals;
 
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
