@@ -217,4 +217,36 @@ while (a < 4) {
       },
     );
   });
+
+  group('For loops', () {
+    test(
+      'It should loop 5 times and print the index',
+      () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+for(var index = 0; index < 5; index = index + 1) {
+  print index;
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        final stdoutCaptured = verify(
+          () => stdout.writeln(captureAny()),
+        ).captured;
+        expect(
+            stdoutCaptured,
+            orderedEquals(
+              const [0, 1, 2, 3, 4],
+            ));
+
+        verifyNever(() => stderr.writeln(any()));
+      },
+    );
+  });
 }

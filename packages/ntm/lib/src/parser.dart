@@ -55,12 +55,14 @@ class Parser {
 
   /// ```
   /// statement -> expressionStatement
+  ///            | forStatement
   ///            | ifStatement
   ///            | printStatement
   ///            | whileStatement
   ///            | block ;
   /// ```
   Statement _statement() {
+    if (_match(const [TokenType.forKeyword])) return _forStatement();
     if (_match(const [TokenType.ifKeyword])) return _ifStatement();
     if (_match(const [TokenType.printKeyword])) return _printStatement();
     if (_match(const [TokenType.whileKeyword])) return _whileStatement();
@@ -68,6 +70,89 @@ class Parser {
       return BlockStatement(statements: _block());
     }
     return _expressionStatement();
+  }
+
+  /// ```
+  /// forStatement -> 'for' '(' (varDeclaration | expressionStatement | ';' )
+  ///                 expression? ';'
+  ///                 expression? ')' statement ;
+  /// ```
+  Statement _forStatement() {
+    _consume(TokenType.leftParenthesis, 'Expect "(" after "for".');
+
+    // If the token following the `(` is a semicolon then the initializer has been
+    // omitted. Otherwise, we check for a `var` keyword to see if it’s a variable
+    // declaration. If neither of those matched, it must be an expression. We
+    // parse that and wrap it in an expression statement so that the initializer
+    // is always of type `Statement`.
+    late final Statement? initializer;
+    if (_match(const [TokenType.semicolon])) {
+      initializer = null;
+    } else if (_match(const [TokenType.varKeyword])) {
+      initializer = _varDeclaration();
+    } else {
+      initializer = _expressionStatement();
+    }
+
+    // Again, we look for a semicolon to see if the clause has been omitted.
+    Expression? condition;
+    if (!_check(TokenType.semicolon)) {
+      condition = _expression();
+    }
+    _consume(TokenType.semicolon, 'Expect ";" after loop condition.');
+
+    // It’s similar to the condition clause except this one is terminated by the
+    // closing parenthesis.
+    late final Expression? increment;
+    if (!_check(TokenType.rightParenthesis)) {
+      increment = _expression();
+    } else {
+      increment = null;
+    }
+    _consume(TokenType.rightParenthesis, 'Expect ")" after for clauses.');
+
+    // All that remains is the body.
+    var body = _statement();
+
+    // We’ve parsed all of the various pieces of the for loop and the resulting
+    // AST nodes are sitting in a handful of dart local variables. This is where
+    // the desugaring comes in. We take those and use them to synthesize syntax
+    // tree nodes that express the semantics of the for loop.
+    //
+    // The code is a little simpler if we work backward, so we start with the
+    // increment clause.
+    if (increment != null) {
+      // The increment, if there is one, executes after the body in each
+      // iteration of the loop. We do that by replacing the body with a little
+      // block that contains the original body followed by an expression
+      // statement that evaluates the increment.
+      body = BlockStatement(
+        statements: [
+          body,
+          ExpressionStatement(increment),
+        ],
+      );
+    }
+
+    // Next, we take the condition and the body and build the loop using a
+    // primitive `while` loop. If the condition is omitted, we jam in `true` to
+    // make an infinite loop.
+    condition ??= LiteralExpression(value: true);
+    body = WhileStatement(
+      condition: condition,
+      body: body,
+    );
+
+    if (initializer != null) {
+      // Finally, if there is an initializer, it runs once before the entire
+      // loop. We do that by, again, replacing the whole statement with a block
+      // that runs the initializer and then executes the loop.
+      body = BlockStatement(
+        statements: [initializer, body],
+      );
+    }
+
+    return body;
   }
 
   Statement _expressionStatement() {
