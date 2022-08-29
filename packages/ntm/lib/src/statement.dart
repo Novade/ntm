@@ -15,6 +15,7 @@ abstract class StatementVisitor<T> {
   T visitVarStatement(VarStatement statement);
   T visitBlockStatement(BlockStatement statement);
   T visitIfStatement(IfStatement statement);
+  T visitWhileStatement(WhileStatement statement);
 }
 
 class ExpressionStatement extends Statement {
@@ -51,6 +52,21 @@ class VarStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitVarStatement(this);
+  }
+}
+
+class WhileStatement extends Statement {
+  const WhileStatement({
+    required this.condition,
+    required this.body,
+  });
+
+  final Expression condition;
+  final Statement body;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitWhileStatement(this);
   }
 }
 

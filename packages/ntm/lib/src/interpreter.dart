@@ -187,6 +187,13 @@ class Interpreter
   }
 
   @override
+  void visitWhileStatement(WhileStatement statement) {
+    while (_isTruthy(_evaluate(statement.condition))) {
+      _execute(statement.body);
+    }
+  }
+
+  @override
   Object? visitVariableExpression(VariableExpression expression) {
     return _environment.get(expression.name);
   }

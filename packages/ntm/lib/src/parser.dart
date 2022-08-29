@@ -57,11 +57,13 @@ class Parser {
   /// statement -> expressionStatement
   ///            | ifStatement
   ///            | printStatement
+  ///            | whileStatement
   ///            | block ;
   /// ```
   Statement _statement() {
     if (_match(const [TokenType.ifKeyword])) return _ifStatement();
     if (_match(const [TokenType.printKeyword])) return _printStatement();
+    if (_match(const [TokenType.whileKeyword])) return _whileStatement();
     if (_match(const [TokenType.leftBrace])) {
       return BlockStatement(statements: _block());
     }
@@ -190,6 +192,21 @@ class Parser {
     return VarStatement(
       name: name,
       initializer: initializer,
+    );
+  }
+
+  /// ```
+  /// whileStatement -> 'while' '(' expression ')' statement ;
+  /// ```
+  Statement _whileStatement() {
+    _consume(TokenType.leftParenthesis, 'Expect "(" after "while".');
+    final condition = _expression();
+    _consume(TokenType.rightParenthesis, 'Expect ")" after condition.');
+    final body = _statement();
+
+    return WhileStatement(
+      condition: condition,
+      body: body,
     );
   }
 

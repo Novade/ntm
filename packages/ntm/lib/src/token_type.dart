@@ -89,7 +89,11 @@ enum TokenType {
 
   /// `true`
   trueKeyword,
+
+  /// `var`
   varKeyword,
+
+  /// `while`
   whileKeyword,
 
   /// End of file.

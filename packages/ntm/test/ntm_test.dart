@@ -183,4 +183,38 @@ if (false) {
       }
     }
   });
+
+  group('While loops', () {
+    test(
+      'The while loop should loop on the body while the condition is true',
+      () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+var a = 0;
+while (a < 4) {
+  print a;
+  a = a + 1;
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        final stdoutCaptured = verify(
+          () => stdout.writeln(captureAny()),
+        ).captured;
+        expect(
+            stdoutCaptured,
+            orderedEquals(
+              const [0, 1, 2, 3],
+            ));
+
+        verifyNever(() => stderr.writeln(any()));
+      },
+    );
+  });
 }
