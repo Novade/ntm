@@ -1,6 +1,8 @@
 import 'package:ntm/src/callable.dart';
 import 'package:ntm/src/interpreter.dart';
 
+// TODO: Make printe a native method.
+
 class Clock extends Callable {
   const Clock();
   @override

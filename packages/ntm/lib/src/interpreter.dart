@@ -4,6 +4,7 @@ import 'package:ntm/src/callable.dart';
 import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/native_functions.dart';
+import 'package:ntm/src/ntm_function.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
@@ -155,7 +156,7 @@ class Interpreter
     statement.accept(this);
   }
 
-  void _executeBlock(Iterable<Statement> statements, Environment environment) {
+  void executeBlock(Iterable<Statement> statements, Environment environment) {
     final previousEnvironment = _environment;
     try {
       _environment = environment;
@@ -169,12 +170,19 @@ class Interpreter
 
   @override
   void visitBlockStatement(BlockStatement statement) {
-    _executeBlock(statement.statements, Environment(enclosing: _environment));
+    executeBlock(statement.statements, Environment(enclosing: _environment));
   }
 
   @override
   void visitExpressionStatement(ExpressionStatement statement) {
     _evaluate(statement.expression);
+  }
+
+  @override
+  void visitFunctionStatement(FunctionStatement statement) {
+    // TODO: Should we pass the current environment?
+    final function = NtmFunction(declaration: statement);
+    _environment.define(statement.name.lexeme, function);
   }
 
   @override

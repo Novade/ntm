@@ -249,4 +249,29 @@ for(var index = 0; index < 5; index = index + 1) {
       },
     );
   });
+
+  group('Functions', () {
+    test(
+      'It should define an call the function',
+      () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+fun f(first, last) {
+  print 'prefix ' + first + ' infix ' + last + ' suffix';
+}
+f('one', 'two');
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verify(() => stdout.writeln('prefix one infix two suffix')).called(1);
+        verifyNever(() => stderr.writeln(any()));
+      },
+    );
+  });
 }

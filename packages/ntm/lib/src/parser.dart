@@ -43,8 +43,16 @@ class Parser {
     return _assignment();
   }
 
+  /// ```
+  /// declaration -> functionDeclaration
+  ///              | varDeclaration
+  ///              | statement ;
+  /// ```
   Statement? _declaration() {
     try {
+      if (_match(const [TokenType.funKeyword])) {
+        return _function(_FunctionType.function);
+      }
       if (_match(const [TokenType.varKeyword])) return _varDeclaration();
       return _statement();
     } on ParseError {
@@ -159,6 +167,52 @@ class Parser {
     final expression = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after expression.');
     return ExpressionStatement(expression);
+  }
+
+  /// ```
+  /// functionDeclaration -> 'fun' function ;
+  /// function -> IDENTIFIER '(' parameters? ')' block ;
+  /// ```
+  FunctionStatement _function(_FunctionType functionType) {
+    final name = _consume(
+      TokenType.identifier,
+      'Expect ${functionType.name} name.',
+    );
+
+    // This is like the code for handling arguments in a call, except not split
+    // out into a helper method. The outer `if` statement handles the zero
+    // parameter case, and the inner `while` loop parses parameters as long as
+    // we find commas to separate them. The result is the list of tokens for
+    // each parameter’s name.
+
+    _consume(TokenType.leftParenthesis,
+        'Expect "(" after ${functionType.name} name.');
+    final parameters = <Token>[];
+    if (!_check(TokenType.rightParenthesis)) {
+      do {
+        parameters.add(_consume(
+          TokenType.identifier,
+          'Expect parameter name.',
+        ));
+      } while (_match(const [TokenType.comma]));
+    }
+    _consume(TokenType.rightParenthesis, 'Expect ")" after parameters.');
+
+    // Note that we consume the `{` at the beginning of the body here before
+    // calling [_block]. That’s because [_block] assumes the brace token has
+    // already been matched. Consuming it here lets us report a more precise
+    // error message if the `{` isn’t found since we know it’s in the context of
+    // a function declaration.
+    _consume(
+      TokenType.leftBrace,
+      'Expect "{" before ${functionType.name} body.',
+    );
+    final body = _block();
+    return FunctionStatement(
+      name: name,
+      params: parameters,
+      body: body,
+    );
   }
 
   /// ```
@@ -551,4 +605,8 @@ class ParseError extends DescriptiveError {
     }
     return '[line ${token.line}:${token.column}] Error $where: $message';
   }
+}
+
+enum _FunctionType {
+  function,
 }

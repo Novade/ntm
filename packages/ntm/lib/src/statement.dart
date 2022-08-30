@@ -14,6 +14,7 @@ abstract class StatementVisitor<T> {
   T visitPrintStatement(PrintStatement statement);
   T visitVarStatement(VarStatement statement);
   T visitBlockStatement(BlockStatement statement);
+  T visitFunctionStatement(FunctionStatement statement);
   T visitIfStatement(IfStatement statement);
   T visitWhileStatement(WhileStatement statement);
 }
@@ -80,6 +81,23 @@ class BlockStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitBlockStatement(this);
+  }
+}
+
+class FunctionStatement extends Statement {
+  const FunctionStatement({
+    required this.name,
+    required this.params,
+    required this.body,
+  });
+
+  final Token name;
+  final List<Token> params;
+  final List<Statement> body;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitFunctionStatement(this);
   }
 }
 

@@ -10,7 +10,11 @@ enum TokenType {
 
   /// `}`
   rightBrace,
+
+  /// `,`
   comma,
+
+  /// `.`
   dot,
 
   /// `-`
@@ -72,7 +76,10 @@ enum TokenType {
   /// `false`
   falseKeyword,
 
+  /// `fun`
   funKeyword,
+
+  /// `for`
   forKeyword,
 
   /// `if`
