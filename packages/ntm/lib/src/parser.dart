@@ -66,6 +66,7 @@ class Parser {
   ///            | forStatement
   ///            | ifStatement
   ///            | printStatement
+  ///            | returnStatement
   ///            | whileStatement
   ///            | block ;
   /// ```
@@ -73,6 +74,7 @@ class Parser {
     if (_match(const [TokenType.forKeyword])) return _forStatement();
     if (_match(const [TokenType.ifKeyword])) return _ifStatement();
     if (_match(const [TokenType.printKeyword])) return _printStatement();
+    if (_match(const [TokenType.returnKeyword])) return _returnStatement();
     if (_match(const [TokenType.whileKeyword])) return _whileStatement();
     if (_match(const [TokenType.leftBrace])) {
       return BlockStatement(statements: _block());
@@ -316,6 +318,30 @@ class Parser {
     final value = _expression();
     _consume(TokenType.semicolon, 'Expect ";" after value.');
     return PrintStatement(value);
+  }
+
+  /// ```
+  /// returnStatement -> 'return' expression? ';' ;
+  /// ```
+  Statement _returnStatement() {
+    final keyword = _previous;
+
+    // After snagging the previously consumed `return` keyword, we look for a
+    // value expression. Since many different tokens can potentially start an
+    // expression, it’s hard to tell if a return value is present. Instead, we
+    // check if it’s absent. Since a semicolon can’t begin an expression, if the
+    // next token is that, we know there must not be a value.
+    late final Expression? value;
+    if (!_check(TokenType.semicolon)) {
+      value = _expression();
+    } else {
+      value = null;
+    }
+    _consume(TokenType.semicolon, 'Expect ";" after return value.');
+    return ReturnStatement(
+      keyword: keyword,
+      value: value,
+    );
   }
 
   Statement _varDeclaration() {

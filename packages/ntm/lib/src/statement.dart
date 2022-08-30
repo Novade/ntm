@@ -12,6 +12,7 @@ abstract class StatementVisitor<T> {
 
   T visitExpressionStatement(ExpressionStatement statement);
   T visitPrintStatement(PrintStatement statement);
+  T visitReturnStatement(ReturnStatement statement);
   T visitVarStatement(VarStatement statement);
   T visitBlockStatement(BlockStatement statement);
   T visitFunctionStatement(FunctionStatement statement);
@@ -38,6 +39,21 @@ class PrintStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitPrintStatement(this);
+  }
+}
+
+class ReturnStatement extends Statement {
+  const ReturnStatement({
+    required this.keyword,
+    required this.value,
+  });
+
+  final Token keyword;
+  final Expression? value;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitReturnStatement(this);
   }
 }
 

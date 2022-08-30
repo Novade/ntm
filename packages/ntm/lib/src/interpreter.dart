@@ -5,6 +5,7 @@ import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/native_functions.dart';
 import 'package:ntm/src/ntm_function.dart';
+import 'package:ntm/src/return_exception.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
@@ -198,6 +199,17 @@ class Interpreter
   void visitPrintStatement(PrintStatement statement) {
     final value = _evaluate(statement.expression);
     stdout.writeln(value);
+  }
+
+  @override
+  void visitReturnStatement(ReturnStatement statement) {
+    late final Object? value;
+    if (statement.value != null) {
+      value = _evaluate(statement.value!);
+    } else {
+      value = null;
+    }
+    throw ReturnException(value);
   }
 
   void interpret(Iterable<Statement> statements) {

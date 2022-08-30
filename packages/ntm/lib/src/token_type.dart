@@ -90,6 +90,8 @@ enum TokenType {
 
   /// `print`
   printKeyword,
+
+  /// `return`
   returnKeyword,
   superKeyword,
   thisKeyword,
