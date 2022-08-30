@@ -181,8 +181,10 @@ class Interpreter
 
   @override
   void visitFunctionStatement(FunctionStatement statement) {
-    // TODO: Should we pass the current environment?
-    final function = NtmFunction(declaration: statement);
+    final function = NtmFunction(
+      declaration: statement,
+      closure: _environment,
+    );
     _environment.define(statement.name.lexeme, function);
   }
 

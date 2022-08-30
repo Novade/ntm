@@ -4,21 +4,23 @@ import 'package:ntm/src/interpreter.dart';
 import 'package:ntm/src/return_exception.dart';
 import 'package:ntm/src/statement.dart';
 
+// TODO: Allow anonymous functions
+// https://www.craftinginterpreters.com/functions.html#challenges
 class NtmFunction implements Callable {
   const NtmFunction({
     required this.declaration,
+    required this.closure,
   });
 
   final FunctionStatement declaration;
+  final Environment closure;
 
   @override
   int get arity => declaration.params.length;
 
   @override
   Object? call(Interpreter interpreter, Iterable<Object?> arguments) {
-    // TODO: Should we use the current environment instead of using the global
-    // one?
-    final environment = Environment(enclosing: interpreter.globals);
+    final environment = Environment(enclosing: closure);
     for (var i = 0; i < declaration.params.length; i++) {
       environment.define(
         declaration.params.elementAt(i).lexeme,
