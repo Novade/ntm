@@ -274,4 +274,26 @@ f('one', 'two');
       },
     );
   });
+
+  group('Binary expressions', () {
+    group('*', () {
+      test(
+        'It should multiply 2 numbers',
+        () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('print 2 * 4;');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          verify(() => stdout.writeln(8)).called(1);
+          verifyNever(() => stderr.writeln(any()));
+        },
+      );
+    });
+  });
 }

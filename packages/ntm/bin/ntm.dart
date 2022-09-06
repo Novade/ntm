@@ -6,6 +6,7 @@ final _ntm = Ntm();
 
 void main(List<String> arguments) {
   exitCode = 0; // Presume success.
+  return _runFile('test/test.ntm');
 
   if (arguments.length > 1) {
     exitCode = 2;

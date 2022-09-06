@@ -427,7 +427,8 @@ class Parser {
     if (_match(const [TokenType.slash, TokenType.star])) {
       final operator = _previous;
       final right = _unary();
-      expression = UnaryExpression(
+      expression = BinaryExpression(
+        left: expression,
         operator: operator,
         right: right,
       );
