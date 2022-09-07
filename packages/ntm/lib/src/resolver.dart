@@ -27,6 +27,13 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   final List<ResolverError> _errors = [];
 
+  List<ResolverError> resolve(Iterable<Statement> statements) {
+    _scopes.clear();
+    _errors.clear;
+    _resolveStatements(statements);
+    return _errors;
+  }
+
   /// Walks a list of statements and resolves each one.
   void _resolveStatements(Iterable<Statement> statements) {
     for (final statement in statements) {

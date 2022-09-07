@@ -49,6 +49,18 @@ class Environment {
     );
   }
 
+  Object? getAt(int distance, Token name) {
+    return _ancestor(distance).get(name);
+  }
+
+  Environment _ancestor(int distance) {
+    var environment = this;
+    for (int i = 0; i < distance; i++) {
+      environment = environment.enclosing!;
+    }
+    return environment;
+  }
+
   void assign(Token name, Object? value) {
     if (_values.containsKey(name.lexeme)) {
       _values[name.lexeme] = value;
@@ -61,5 +73,9 @@ class Environment {
       token: name,
       message: 'Undefined variable "${name.lexeme}".',
     );
+  }
+
+  void assignAt(int distance, Token name, Object? value) {
+    _ancestor(distance).assign(name, value);
   }
 }

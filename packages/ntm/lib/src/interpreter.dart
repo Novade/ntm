@@ -24,6 +24,9 @@ class Interpreter
   final globals = Environment();
   late var _environment = globals;
 
+  /// Associates each syntax tree node with its resolved data.
+  final Map<Expression, int> _locals = {};
+
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
     final left = _evaluate(expression.left);
@@ -157,6 +160,8 @@ class Interpreter
     statement.accept(this);
   }
 
+  void resolve(Expression expression, int depth) {}
+
   void executeBlock(Iterable<Statement> statements, Environment environment) {
     final previousEnvironment = _environment;
     try {
@@ -246,13 +251,36 @@ class Interpreter
 
   @override
   Object? visitVariableExpression(VariableExpression expression) {
-    return _environment.get(expression.name);
+    return _lookUpVariable(expression.name, expression);
+  }
+
+  Object? _lookUpVariable(Token name, Expression expression) {
+    // First, we look up the resolved distance in the map. We resolved only
+    // local variables. Globals are treated specially and don’t end up in the
+    // map (hence the name locals). So, if we don’t find a distance in the map,
+    // it must be global. In that cases, we look it up, dynamically, directly in
+    // the global environment. That throws a runtime error if the variable isn’t
+    // defined.
+    //
+    // If we do get a distance, we have a local variable, and we get to take
+    // advantage of the results of our static analysis.
+    final distance = _locals[expression];
+    if (distance != null) {
+      return _environment.getAt(distance, name);
+    } else {
+      return globals.get(name);
+    }
   }
 
   @override
   Object? visitAssignExpression(AssignExpression expression) {
     final value = _evaluate(expression.value);
-    _environment.assign(expression.name, value);
-    return value;
+    final distance = _locals[expression];
+    if (distance != null) {
+      _environment.assignAt(distance, expression.name, value);
+    } else {
+      globals.assign(expression.name, value);
+    }
+    return null;
   }
 }

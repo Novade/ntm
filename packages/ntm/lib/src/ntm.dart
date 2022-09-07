@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:ntm/src/interpreter.dart';
 import 'package:ntm/src/parser.dart';
+import 'package:ntm/src/resolver.dart';
 import 'package:ntm/src/scanner.dart';
 
 class Ntm {
@@ -19,17 +20,26 @@ class Ntm {
       }
       return;
     }
+
     final parser = Parser(tokens: scanResult.tokens);
-
     final parseResult = parser.parse();
-
     if (parseResult.errors.isNotEmpty) {
       for (final error in parseResult.errors) {
         stderr.writeln(error.describe());
       }
+      return;
     }
-    interpreter.interpret(parseResult.statements);
 
+    final resolver = Resolver(interpreter);
+    final resolverErrors = resolver.resolve(parseResult.statements);
+    if (resolverErrors.isNotEmpty) {
+      for (final error in resolverErrors) {
+        stderr.writeln(error.describe());
+      }
+      return;
+    }
+
+    interpreter.interpret(parseResult.statements);
     if (interpreter.errors.isNotEmpty) {
       for (final error in interpreter.errors) {
         stderr.writeln(error.describe());
