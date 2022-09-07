@@ -296,4 +296,75 @@ f('one', 'two');
       );
     });
   });
+
+  group('Resolver', () {
+    group('Errors', () {
+      test('It should report a return statement that is not in a function', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('return 1;');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln('[1:7] Cannot return from top-level code.'),
+        ).called(1);
+      });
+
+      test(
+          'It should report a variable that is already declared in the current scope',
+          () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+{
+  var a = 1;
+  var a = 2;
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln(
+            '[3:7] There is already a variable with the name "a" in this scope.',
+          ),
+        ).called(1);
+      });
+    });
+
+    test('It should report a variable that read itself', () {
+      final stdout = _MockStdout();
+      final stderr = _MockStdout();
+      IOOverrides.runZoned(
+        () {
+          Ntm().run('''
+var a = 0;
+{
+  var a = a;
+}
+''');
+        },
+        stdout: () => stdout,
+        stderr: () => stderr,
+      );
+
+      verifyNever(() => stdout.writeln(any()));
+      verify(
+        () => stderr.writeln(
+          '[3:11] Cannot read local variable in its own initializer.',
+        ),
+      ).called(1);
+    });
+  });
 }

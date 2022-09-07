@@ -4,6 +4,16 @@ import 'package:ntm/src/interpreter.dart';
 import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
 
+// TODO:
+// Warn user for:
+// - Dead code after return statement.
+// - Unused local variable.
+
+enum _FunctionType {
+  none,
+  function,
+}
+
 class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   Resolver(this.interpreter);
 
@@ -27,9 +37,16 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   final List<ResolverError> _errors = [];
 
-  List<ResolverError> resolve(Iterable<Statement> statements) {
+  var _currentFunction = _FunctionType.none;
+
+  void _clear() {
     _scopes.clear();
     _errors.clear;
+    _currentFunction = _FunctionType.none;
+  }
+
+  List<ResolverError> resolve(Iterable<Statement> statements) {
+    _clear();
     _resolveStatements(statements);
     return _errors;
   }
@@ -67,6 +84,15 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   void _declare(Token name) {
     if (_scopes.isEmpty) return;
     final scope = _scopes.last;
+    if (scope.containsKey(name.lexeme)) {
+      _errors.add(
+        ResolverError(
+          token: name,
+          message:
+              'There is already a variable with the name "${name.lexeme}" in this scope.',
+        ),
+      );
+    }
     scope[name.lexeme] = false;
   }
 
@@ -100,7 +126,9 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   /// body. The body doesn’t get touched until later when the function is
   /// called. In a _static_ analysis, we immediately traverse into the body
   /// right then and there.
-  void _resolveFunction(FunctionStatement function) {
+  void _resolveFunction(FunctionStatement function, _FunctionType type) {
+    final enclosingFunction = _currentFunction;
+    _currentFunction = type;
     _beginScope();
     for (final param in function.params) {
       _declare(param);
@@ -108,6 +136,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     }
     _resolveStatements(function.body);
     _endScope();
+    _currentFunction = enclosingFunction;
   }
 
   /// First, we resolve the expression for the assigned value in case it also
@@ -160,7 +189,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _declare(statement.name);
     _define(statement.name);
 
-    _resolveFunction(statement);
+    _resolveFunction(statement, _FunctionType.function);
   }
 
   @override
@@ -207,6 +236,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitReturnStatement(ReturnStatement statement) {
+    if (_currentFunction == _FunctionType.none) {
+      _errors.add(ResolverError(
+        token: statement.keyword,
+        message: 'Cannot return from top-level code.',
+      ));
+    }
     if (statement.value != null) {
       _resolveExpression(statement.value!);
     }

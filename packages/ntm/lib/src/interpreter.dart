@@ -160,7 +160,9 @@ class Interpreter
     statement.accept(this);
   }
 
-  void resolve(Expression expression, int depth) {}
+  void resolve(Expression expression, int depth) {
+    _locals[expression] = depth;
+  }
 
   void executeBlock(Iterable<Statement> statements, Environment environment) {
     final previousEnvironment = _environment;
