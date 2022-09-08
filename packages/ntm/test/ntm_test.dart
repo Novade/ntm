@@ -367,4 +367,29 @@ var a = 0;
       ).called(1);
     });
   });
+
+  group('Class', () {
+    test('It should print the class', () {
+      final stdout = _MockStdout();
+      final stderr = _MockStdout();
+      IOOverrides.runZoned(
+        () {
+          Ntm().run('''
+class MyClass {
+  myMethod() {
+    return null;
+  }
+}
+
+print MyClass;
+''');
+        },
+        stdout: () => stdout,
+        stderr: () => stderr,
+      );
+
+      verify(() => stdout.writeln('MyClass')).called(1);
+      verifyNever(() => stderr.writeln(any()));
+    });
+  });
 }

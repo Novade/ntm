@@ -10,14 +10,44 @@ abstract class Statement {
 abstract class StatementVisitor<T> {
   const StatementVisitor();
 
+  T visitBlockStatement(BlockStatement statement);
+  T visitClassStatement(ClassStatement statement);
   T visitExpressionStatement(ExpressionStatement statement);
   T visitPrintStatement(PrintStatement statement);
   T visitReturnStatement(ReturnStatement statement);
   T visitVarStatement(VarStatement statement);
-  T visitBlockStatement(BlockStatement statement);
   T visitFunctionStatement(FunctionStatement statement);
   T visitIfStatement(IfStatement statement);
   T visitWhileStatement(WhileStatement statement);
+}
+
+class BlockStatement extends Statement {
+  const BlockStatement({
+    this.statements = const [],
+  });
+
+  final Iterable<Statement> statements;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitBlockStatement(this);
+  }
+}
+
+// TODO: Add fields.
+class ClassStatement extends Statement {
+  const ClassStatement({
+    required this.name,
+    required this.methods,
+  });
+
+  final Token name;
+  final List<FunctionStatement> methods;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitClassStatement(this);
+  }
 }
 
 class ExpressionStatement extends Statement {
@@ -84,19 +114,6 @@ class WhileStatement extends Statement {
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitWhileStatement(this);
-  }
-}
-
-class BlockStatement extends Statement {
-  const BlockStatement({
-    this.statements = const [],
-  });
-
-  final Iterable<Statement> statements;
-
-  @override
-  T accept<T>(StatementVisitor<T> visitor) {
-    return visitor.visitBlockStatement(this);
   }
 }
 

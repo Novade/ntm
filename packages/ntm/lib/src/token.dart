@@ -1,4 +1,4 @@
-import 'package:ntm/src/descriptive_error.dart';
+import 'package:ntm/src/describable_error.dart';
 import 'package:ntm/src/token_type.dart';
 
 /// Stores the information about a token.
@@ -22,7 +22,7 @@ class Token {
   }
 }
 
-class TokenError extends DescriptiveError {
+class TokenError extends DescribableError {
   const TokenError({
     required this.line,
     required this.column,

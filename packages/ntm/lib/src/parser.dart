@@ -1,4 +1,4 @@
-import 'package:ntm/src/descriptive_error.dart';
+import 'package:ntm/src/describable_error.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/statement.dart';
 import 'package:ntm/src/token.dart';
@@ -44,12 +44,16 @@ class Parser {
   }
 
   /// ```
-  /// declaration -> functionDeclaration
+  /// declaration -> classDeclaration
+  ///              | functionDeclaration
   ///              | varDeclaration
   ///              | statement ;
   /// ```
   Statement? _declaration() {
     try {
+      if (_match(const [TokenType.classKeyword])) {
+        return _classDeclaration();
+      }
       if (_match(const [TokenType.funKeyword])) {
         return _function(_FunctionType.function);
       }
@@ -59,6 +63,22 @@ class Parser {
       _synchronize();
     }
     return null;
+  }
+
+  /// ```
+  /// classDeclaration -> 'class' IDENTIFIER '{' function* '}; ;
+  /// ```
+  Statement _classDeclaration() {
+    final name = _consume(TokenType.identifier, 'Expect class name.');
+    _consume(TokenType.leftBrace, 'Expect "{" before class body.');
+
+    final methods = <FunctionStatement>[];
+    while (!_check(TokenType.rightBrace) && !_isAtEnd) {
+      methods.add(_function(_FunctionType.method));
+    }
+
+    _consume(TokenType.rightBrace, 'Expect "}" after class body.');
+    return ClassStatement(name: name, methods: methods);
   }
 
   /// ```
@@ -613,7 +633,7 @@ class ParseResult {
   final List<ParseError> errors;
 }
 
-class ParseError extends DescriptiveError {
+class ParseError extends DescribableError {
   const ParseError({
     required this.token,
     required this.message,
@@ -636,4 +656,5 @@ class ParseError extends DescriptiveError {
 
 enum _FunctionType {
   function,
+  method,
 }

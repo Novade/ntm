@@ -1,4 +1,4 @@
-import 'package:ntm/src/descriptive_error.dart';
+import 'package:ntm/src/describable_error.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/interpreter.dart';
 import 'package:ntm/src/statement.dart';
@@ -162,6 +162,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   }
 
   @override
+  void visitClassStatement(ClassStatement statement) {
+    _declare(statement.name);
+    _define(statement.name);
+  }
+
+  @override
   void visitCallExpression(CallExpression expression) {
     _resolveExpression(expression.callee);
     for (final argument in expression.arguments) {
@@ -312,7 +318,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   }
 }
 
-class ResolverError extends DescriptiveError {
+class ResolverError extends DescribableError {
   const ResolverError({
     required this.token,
     required this.message,

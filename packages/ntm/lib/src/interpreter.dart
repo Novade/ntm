@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:ntm/src/callable.dart';
+import 'package:ntm/src/describable.dart';
 import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/native_functions.dart';
+import 'package:ntm/src/ntm_class.dart';
 import 'package:ntm/src/ntm_function.dart';
 import 'package:ntm/src/return_exception.dart';
 import 'package:ntm/src/runtime_error.dart';
@@ -182,6 +184,13 @@ class Interpreter
   }
 
   @override
+  void visitClassStatement(ClassStatement statement) {
+    _environment.define(statement.name.lexeme, null);
+    final ntmClass = NtmClass(statement.name.lexeme);
+    _environment.assign(statement.name, ntmClass);
+  }
+
+  @override
   void visitExpressionStatement(ExpressionStatement statement) {
     _evaluate(statement.expression);
   }
@@ -207,7 +216,11 @@ class Interpreter
   @override
   void visitPrintStatement(PrintStatement statement) {
     final value = _evaluate(statement.expression);
-    stdout.writeln(value);
+    if (value is Describable) {
+      stdout.writeln(value.describe());
+    } else {
+      stdout.writeln(value);
+    }
   }
 
   @override

@@ -1,7 +1,7 @@
-import 'package:ntm/src/descriptive_error.dart';
+import 'package:ntm/src/describable_error.dart';
 import 'package:ntm/src/token.dart';
 
-class RuntimeError implements DescriptiveError {
+class RuntimeError implements DescribableError {
   const RuntimeError({
     required this.token,
     required this.message,

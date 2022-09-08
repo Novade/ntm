@@ -68,6 +68,8 @@ enum TokenType {
   number,
 
   // keywords.
+
+  /// `class`
   classKeyword,
 
   /// `else`
