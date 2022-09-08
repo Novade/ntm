@@ -7,6 +7,7 @@ import 'package:ntm/src/expression.dart';
 import 'package:ntm/src/native_functions.dart';
 import 'package:ntm/src/ntm_class.dart';
 import 'package:ntm/src/ntm_function.dart';
+import 'package:ntm/src/ntm_instance.dart';
 import 'package:ntm/src/return_exception.dart';
 import 'package:ntm/src/runtime_error.dart';
 import 'package:ntm/src/statement.dart';
@@ -100,6 +101,18 @@ class Interpreter
   }
 
   @override
+  Object? visitGetExpression(GetExpression expression) {
+    final object = _evaluate(expression.object);
+    if (object is NtmInstance) {
+      return object.get(expression.name);
+    }
+    throw RuntimeError(
+      token: expression.name,
+      message: 'Only instances have properties',
+    );
+  }
+
+  @override
   Object? visitGroupingExpression(GroupingExpression expression) {
     return _evaluate(expression.expression);
   }
@@ -119,6 +132,22 @@ class Interpreter
       if (!_isTruthy(left)) return left;
     }
     return _evaluate(expression.right);
+  }
+
+  @override
+  Object? visitSetExpression(SetExpression expression) {
+    final object = _evaluate(expression.object);
+
+    if (object is! NtmInstance) {
+      throw RuntimeError(
+        token: expression.name,
+        message: 'Only instances have fields.',
+      );
+    }
+
+    final value = _evaluate(expression.value);
+    object.set(expression.name, value);
+    return value;
   }
 
   @override

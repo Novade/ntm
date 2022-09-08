@@ -102,9 +102,11 @@ print a;
         );
 
         verifyNever(() => stdout.writeln(any()));
-        verify(() => stderr.writeln('''
-The variable "a" was declared but never assigned.
-[2:7]''')).called(1);
+        verify(
+          () => stderr.writeln(
+            '[2:7] The variable "a" was declared but never assigned.',
+          ),
+        ).called(1);
       },
     );
   });
@@ -395,6 +397,49 @@ print myInstance;
       ).captured;
       expect(stdoutCaptured, const ['MyClass', 'MyClass instance']);
       verifyNever(() => stderr.writeln(any()));
+    });
+
+    test('It should set and get the class field', () {
+      final stdout = _MockStdout();
+      final stderr = _MockStdout();
+      IOOverrides.runZoned(
+        () {
+          Ntm().run('''
+class MyClass {}
+var myInstance = MyClass();
+myInstance.myField = 'myValue';
+print myInstance.myField;
+''');
+        },
+        stdout: () => stdout,
+        stderr: () => stderr,
+      );
+
+      verify(() => stdout.writeln('myValue')).called(1);
+      verifyNever(() => stderr.writeln(any()));
+    });
+
+    test(
+        'It should raise an error when a field that does not exist is accessed',
+        () {
+      final stdout = _MockStdout();
+      final stderr = _MockStdout();
+      IOOverrides.runZoned(
+        () {
+          Ntm().run('''
+class MyClass {}
+var myInstance = MyClass();
+myInstance.myField;
+''');
+        },
+        stdout: () => stdout,
+        stderr: () => stderr,
+      );
+
+      verifyNever(() => stdout.writeln(any()));
+      verify(
+        () => stderr.writeln('[3:18] Undefined property "myField".'),
+      ).called(1);
     });
   });
 }

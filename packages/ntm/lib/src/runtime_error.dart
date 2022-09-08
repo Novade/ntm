@@ -12,6 +12,6 @@ class RuntimeError implements DescribableError {
 
   @override
   String describe() {
-    return '$message\n[${token.line}:${token.column}]';
+    return '[${token.line}:${token.column}] $message';
   }
 }

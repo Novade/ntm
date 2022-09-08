@@ -5,9 +5,11 @@ abstract class ExpressionVisitor<T> {
 
   T visitBinaryExpression(BinaryExpression expression);
   T visitCallExpression(CallExpression expression);
+  T visitGetExpression(GetExpression expression);
   T visitGroupingExpression(GroupingExpression expression);
   T visitLiteralExpression(LiteralExpression expression);
   T visitLogicalExpression(LogicalExpression expression);
+  T visitSetExpression(SetExpression expression);
   T visitUnaryExpression(UnaryExpression expression);
   T visitVariableExpression(VariableExpression expression);
   T visitAssignExpression(AssignExpression expression);
@@ -54,6 +56,21 @@ class CallExpression extends Expression {
   }
 }
 
+class GetExpression extends Expression {
+  const GetExpression({
+    required this.object,
+    required this.name,
+  });
+
+  final Expression object;
+  final Token name;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitGetExpression(this);
+  }
+}
+
 class GroupingExpression extends Expression {
   const GroupingExpression({
     required this.expression,
@@ -91,6 +108,23 @@ class LogicalExpression extends Expression {
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLogicalExpression(this);
+  }
+}
+
+class SetExpression extends Expression {
+  const SetExpression({
+    required this.object,
+    required this.name,
+    required this.value,
+  });
+
+  final Expression object;
+  final Token name;
+  final Expression value;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitSetExpression(this);
   }
 }
 

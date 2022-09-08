@@ -275,7 +275,7 @@ class Parser {
   }
 
   /// ```
-  /// assignment -> IDENTIFIER "=" assignment
+  /// assignment -> ( call '.' )? IDENTIFIER "=" assignment
   ///             | logical_or ;
   /// ```
   Expression _assignment() {
@@ -286,6 +286,12 @@ class Parser {
 
       if (expression is VariableExpression) {
         return AssignExpression(
+          name: expression.name,
+          value: value,
+        );
+      } else if (expression is GetExpression) {
+        return SetExpression(
+          object: expression.object,
           name: expression.name,
           value: value,
         );
@@ -503,7 +509,7 @@ class Parser {
   }
 
   /// ```
-  /// call -> primary ( '(' arguments? ')' )* ;
+  /// call -> primary ( '(' arguments? ')' | '.' IDENTIFIER )* ;
   /// arguments -> expression ( ',', expression )* ;
   /// ```
   Expression _call() {
@@ -511,6 +517,12 @@ class Parser {
     while (true) {
       if (_match(const [TokenType.leftParenthesis])) {
         expression = _finishCall(expression);
+      } else if (_match(const [TokenType.dot])) {
+        final name = _consume(
+          TokenType.identifier,
+          'Expect property name after ".".',
+        );
+        expression = GetExpression(object: expression, name: name);
       } else {
         break;
       }
