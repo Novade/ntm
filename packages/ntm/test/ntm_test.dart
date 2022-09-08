@@ -382,13 +382,18 @@ class MyClass {
 }
 
 print MyClass;
+var myInstance = MyClass();
+print myInstance;
 ''');
         },
         stdout: () => stdout,
         stderr: () => stderr,
       );
 
-      verify(() => stdout.writeln('MyClass')).called(1);
+      final stdoutCaptured = verify(
+        () => stdout.writeln(captureAny()),
+      ).captured;
+      expect(stdoutCaptured, const ['MyClass', 'MyClass instance']);
       verifyNever(() => stderr.writeln(any()));
     });
   });
