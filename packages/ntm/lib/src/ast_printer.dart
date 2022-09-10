@@ -71,4 +71,16 @@ class AstPrint implements ExpressionVisitor<String> {
     // TODO: implement visitCallExpression
     throw UnimplementedError();
   }
+
+  @override
+  String visitGetExpression(GetExpression expression) {
+    // TODO: implement visitGetExpression
+    throw UnimplementedError();
+  }
+
+  @override
+  String visitSetExpression(SetExpression expression) {
+    // TODO: implement visitSetExpression
+    throw UnimplementedError();
+  }
 }

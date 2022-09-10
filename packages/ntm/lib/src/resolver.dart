@@ -12,6 +12,7 @@ import 'package:ntm/src/token.dart';
 enum _FunctionType {
   none,
   function,
+  method,
 }
 
 class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
@@ -165,6 +166,11 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   void visitClassStatement(ClassStatement statement) {
     _declare(statement.name);
     _define(statement.name);
+
+    for (final method in statement.methods) {
+      final declaration = _FunctionType.method;
+      _resolveFunction(method, declaration);
+    }
   }
 
   @override

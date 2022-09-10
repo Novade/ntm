@@ -215,7 +215,20 @@ class Interpreter
   @override
   void visitClassStatement(ClassStatement statement) {
     _environment.define(statement.name.lexeme, null);
-    final ntmClass = NtmClass(statement.name.lexeme);
+
+    final methods = Map.fromEntries(statement.methods.map((method) {
+      return MapEntry(
+        method.name.lexeme,
+        NtmFunction(
+          declaration: method,
+          closure: _environment,
+        ),
+      );
+    }));
+    final ntmClass = NtmClass(
+      name: statement.name.lexeme,
+      methods: methods,
+    );
     _environment.assign(statement.name, ntmClass);
   }
 

@@ -398,48 +398,73 @@ print myInstance;
       expect(stdoutCaptured, const ['MyClass', 'MyClass instance']);
       verifyNever(() => stderr.writeln(any()));
     });
-
-    test('It should set and get the class field', () {
-      final stdout = _MockStdout();
-      final stderr = _MockStdout();
-      IOOverrides.runZoned(
-        () {
-          Ntm().run('''
+    group('Field', () {
+      test('It should set and get the class field', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
 class MyClass {}
 var myInstance = MyClass();
 myInstance.myField = 'myValue';
 print myInstance.myField;
 ''');
-        },
-        stdout: () => stdout,
-        stderr: () => stderr,
-      );
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
 
-      verify(() => stdout.writeln('myValue')).called(1);
-      verifyNever(() => stderr.writeln(any()));
-    });
+        verify(() => stdout.writeln('myValue')).called(1);
+        verifyNever(() => stderr.writeln(any()));
+      });
 
-    test(
-        'It should raise an error when a field that does not exist is accessed',
-        () {
-      final stdout = _MockStdout();
-      final stderr = _MockStdout();
-      IOOverrides.runZoned(
-        () {
-          Ntm().run('''
+      test(
+          'It should raise an error when a field that does not exist is accessed',
+          () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
 class MyClass {}
 var myInstance = MyClass();
 myInstance.myField;
 ''');
-        },
-        stdout: () => stdout,
-        stderr: () => stderr,
-      );
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
 
-      verifyNever(() => stdout.writeln(any()));
-      verify(
-        () => stderr.writeln('[3:18] Undefined property "myField".'),
-      ).called(1);
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln('[3:18] Undefined property "myField".'),
+        ).called(1);
+      });
+    });
+
+    group('Method', () {
+      test('It should access the method of the class', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  method() {
+    print 'method';
+  }
+}
+MyClass().method();
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verify(() => stdout.writeln('method')).called(1);
+        verifyNever(() => stderr.writeln(any()));
+      });
     });
   });
 }
