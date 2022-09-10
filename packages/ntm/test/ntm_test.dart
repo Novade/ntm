@@ -507,5 +507,84 @@ instance.method();
         ).called(1);
       });
     });
+
+    group('init', () {
+      test('It should init the field when the instance is created', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  init(field1) {
+    this.field0 = 'field0';
+    this.field1 = field1;
+  }
+}
+var instance = MyClass(2);
+print instance.field0;
+print instance.field1;
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        final stdoutCaptured = verify(
+          () => stdout.writeln(captureAny()),
+        ).captured;
+        expect(
+          stdoutCaptured,
+          const ['field0', 2],
+        );
+        verifyNever(() => stderr.writeln(any()));
+      });
+
+      test('It should raise an error if the init method returns a value', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  init(field1) {
+    return 2;
+  }
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln(
+            '[3:10] Cannot return a value from an initializer.',
+          ),
+        ).called(1);
+      });
+
+      test('It should accept empty return in the init method', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  init(field1) {
+    return;
+  }
+}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verifyNever(() => stderr.writeln(any()));
+      });
+    });
   });
 }

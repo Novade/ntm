@@ -53,6 +53,10 @@ class Environment {
     return _ancestor(distance).get(name);
   }
 
+  Object? getLexemeAt(int distance, String lexeme) {
+    return _ancestor(distance)._values[lexeme];
+  }
+
   Environment _ancestor(int distance) {
     var environment = this;
     for (int i = 0; i < distance; i++) {

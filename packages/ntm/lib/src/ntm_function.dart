@@ -11,10 +11,12 @@ class NtmFunction implements Callable {
   const NtmFunction({
     required this.declaration,
     required this.closure,
+    required this.isInitializer,
   });
 
   final FunctionStatement declaration;
   final Environment closure;
+  final bool isInitializer;
 
   @override
   int get arity => declaration.params.length;
@@ -36,8 +38,10 @@ class NtmFunction implements Callable {
     try {
       interpreter.executeBlock(declaration.body, environment);
     } on ReturnException catch (returnValue) {
+      if (isInitializer) return closure.getLexemeAt(0, 'this');
       return returnValue.value;
     }
+    if (isInitializer) return closure.getLexemeAt(0, 'this');
     return null;
   }
 
@@ -47,6 +51,7 @@ class NtmFunction implements Callable {
     return NtmFunction(
       declaration: declaration,
       closure: environment,
+      isInitializer: isInitializer,
     );
   }
 

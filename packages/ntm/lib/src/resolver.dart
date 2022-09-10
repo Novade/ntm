@@ -13,6 +13,7 @@ enum _FunctionType {
   none,
   function,
   method,
+  initializer,
 }
 
 enum _ClassType {
@@ -186,7 +187,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     // outside of the block for the method body.
 
     for (final method in statement.methods) {
-      final declaration = _FunctionType.method;
+      final _FunctionType declaration;
+      if (method.name.lexeme == 'init') {
+        declaration = _FunctionType.initializer;
+      } else {
+        declaration = _FunctionType.method;
+      }
       _resolveFunction(method, declaration);
     }
     _currentClass = enclosingClass;
@@ -299,6 +305,12 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
       ));
     }
     if (statement.value != null) {
+      if (_currentFunction == _FunctionType.initializer) {
+        _errors.add(ResolverError(
+          token: statement.keyword,
+          message: 'Cannot return a value from an initializer.',
+        ));
+      }
       _resolveExpression(statement.value!);
     }
   }

@@ -227,6 +227,7 @@ class Interpreter
         NtmFunction(
           declaration: method,
           closure: _environment,
+          isInitializer: method.name.lexeme == 'init',
         ),
       );
     }));
@@ -247,6 +248,7 @@ class Interpreter
     final function = NtmFunction(
       declaration: statement,
       closure: _environment,
+      isInitializer: false,
     );
     _environment.define(statement.name.lexeme, function);
   }
