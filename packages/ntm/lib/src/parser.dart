@@ -544,6 +544,9 @@ class Parser {
     if (_match(const [TokenType.number, TokenType.string])) {
       return LiteralExpression(value: _previous.literal);
     }
+    if (_match(const [TokenType.thisKeyword])) {
+      return ThisExpression(keyword: _previous);
+    }
     if (_match(const [TokenType.identifier])) {
       return VariableExpression(_previous);
     }

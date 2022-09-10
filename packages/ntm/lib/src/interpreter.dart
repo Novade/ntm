@@ -151,6 +151,11 @@ class Interpreter
   }
 
   @override
+  Object? visitThisExpression(ThisExpression expression) {
+    return _lookUpVariable(expression.keyword, expression);
+  }
+
+  @override
   Object? visitUnaryExpression(UnaryExpression expression) {
     final right = _evaluate(expression.right);
     switch (expression.operator.type) {

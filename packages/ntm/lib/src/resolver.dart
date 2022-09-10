@@ -15,6 +15,11 @@ enum _FunctionType {
   method,
 }
 
+enum _ClassType {
+  none,
+  ntmClass,
+}
+
 class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   Resolver(this.interpreter);
 
@@ -39,6 +44,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   final List<ResolverError> _errors = [];
 
   var _currentFunction = _FunctionType.none;
+  var _currentClass = _ClassType.none;
 
   void _clear() {
     _scopes.clear();
@@ -164,13 +170,27 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitClassStatement(ClassStatement statement) {
+    final enclosingClass = _currentClass;
+    _currentClass = _ClassType.ntmClass;
     _declare(statement.name);
     _define(statement.name);
+
+    // Before we step in and start resolving the method bodies, we push a new
+    // scope and define “this” in it as if it were a variable. Then, when we’re
+    // done, we discard that surrounding scope.
+    _beginScope();
+    _scopes.last['this'] = true;
+
+    // Now, whenever a this expression is encountered (at least inside a method)
+    // it will resolve to a “local variable” defined in an implicit scope just
+    // outside of the block for the method body.
 
     for (final method in statement.methods) {
       final declaration = _FunctionType.method;
       _resolveFunction(method, declaration);
     }
+    _currentClass = enclosingClass;
+    _endScope();
   }
 
   @override
@@ -252,6 +272,17 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     // TODO: Add fields to class.
     _resolveExpression(expression.value);
     _resolveExpression(expression.object);
+  }
+
+  @override
+  void visitThisExpression(ThisExpression expression) {
+    if (_currentClass == _ClassType.none) {
+      _errors.add(ResolverError(
+        token: expression.keyword,
+        message: 'Cannot use "this" outside a class.',
+      ));
+    }
+    _resolveLocal(expression, expression.keyword);
   }
 
   @override

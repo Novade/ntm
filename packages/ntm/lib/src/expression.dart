@@ -10,6 +10,7 @@ abstract class ExpressionVisitor<T> {
   T visitLiteralExpression(LiteralExpression expression);
   T visitLogicalExpression(LogicalExpression expression);
   T visitSetExpression(SetExpression expression);
+  T visitThisExpression(ThisExpression expression);
   T visitUnaryExpression(UnaryExpression expression);
   T visitVariableExpression(VariableExpression expression);
   T visitAssignExpression(AssignExpression expression);
@@ -125,6 +126,19 @@ class SetExpression extends Expression {
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitSetExpression(this);
+  }
+}
+
+class ThisExpression extends Expression {
+  const ThisExpression({
+    required this.keyword,
+  });
+
+  final Token keyword;
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitThisExpression(this);
   }
 }
 

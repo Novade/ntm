@@ -1,6 +1,7 @@
 import 'package:ntm/src/callable.dart';
 import 'package:ntm/src/environment.dart';
 import 'package:ntm/src/interpreter.dart';
+import 'package:ntm/src/ntm_instance.dart';
 import 'package:ntm/src/return_exception.dart';
 import 'package:ntm/src/statement.dart';
 
@@ -38,6 +39,15 @@ class NtmFunction implements Callable {
       return returnValue.value;
     }
     return null;
+  }
+
+  NtmFunction bind(NtmInstance instance) {
+    final environment = Environment(enclosing: closure);
+    environment.define('this', instance);
+    return NtmFunction(
+      declaration: declaration,
+      closure: environment,
+    );
   }
 
   @override

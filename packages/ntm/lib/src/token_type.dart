@@ -3,6 +3,8 @@ enum TokenType {
 
   /// `(`
   leftParenthesis,
+
+  /// `)`
   rightParenthesis,
 
   /// `{`
@@ -39,6 +41,8 @@ enum TokenType {
 
   /// `!=`
   bangEqual,
+
+  /// `=`
   equal,
 
   /// `==`
@@ -95,7 +99,11 @@ enum TokenType {
 
   /// `return`
   returnKeyword,
+
+  /// `super`
   superKeyword,
+
+  /// `this`
   thisKeyword,
 
   /// `true`

@@ -465,6 +465,47 @@ MyClass().method();
         verify(() => stdout.writeln('method')).called(1);
         verifyNever(() => stderr.writeln(any()));
       });
+
+      test('It should be able to access this', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  method() {
+    print this.field + ' in method';
+  }
+}
+var instance = MyClass();
+instance.field = 'field';
+instance.method();
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verify(() => stdout.writeln('field in method')).called(1);
+        verifyNever(() => stderr.writeln(any()));
+      });
+
+      test('It should not allow to access "this" when not in a class', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('this;');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln('[1:5] Cannot use "this" outside a class.'),
+        ).called(1);
+      });
     });
   });
 }

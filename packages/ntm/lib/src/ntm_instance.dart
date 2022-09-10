@@ -25,7 +25,7 @@ class NtmInstance implements Describable {
 
     // TODO: Disallow method shadowing ?
     final method = ntmClass.findMethod(name.lexeme);
-    if (method != null) return method;
+    if (method != null) return method.bind(this);
 
     // TODO: Add fields to class.
     throw RuntimeError(
