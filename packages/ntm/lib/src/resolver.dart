@@ -177,10 +177,10 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _define(statement.name);
 
     if (statement.superClass != null &&
-        statement.name.lexeme == statement.name.lexeme) {
+        statement.name.lexeme == statement.superClass!.name.lexeme) {
       _errors.add(ResolverError(
         token: statement.superClass!.name,
-        message: 'A class cannot inherit from itself.',
+        message: 'Class "${statement.name.lexeme}" cannot inherit from itself.',
       ));
     }
 

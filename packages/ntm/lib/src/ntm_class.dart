@@ -33,7 +33,7 @@ class NtmClass implements Describable, Callable {
     if (methods.containsKey(name)) {
       return methods[name]!;
     }
-    return null;
+    return superClass?.findMethod(name);
   }
 
   @override

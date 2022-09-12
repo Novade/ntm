@@ -221,12 +221,16 @@ class Interpreter
   void visitClassStatement(ClassStatement statement) {
     final Object? superClass;
     if (statement.superClass != null) {
-      superClass = _evaluate(statement.superClass!);
-      if (superClass is! NtmClass) {
+      final potentialSuperClass = _evaluate(statement.superClass!);
+      if (potentialSuperClass is! NtmClass) {
         errors.add(RuntimeError(
           token: statement.superClass!.name,
-          message: 'Superclass must be a class.',
+          message:
+              'Superclass must be a class, but "${statement.superClass!.name.lexeme}" is not, so "${statement.name.lexeme}" cannot inherit from it.',
         ));
+        superClass = null;
+      } else {
+        superClass = potentialSuperClass;
       }
     } else {
       superClass = null;

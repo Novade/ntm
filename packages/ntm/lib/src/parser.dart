@@ -74,6 +74,7 @@ class Parser {
 
     final VariableExpression? superClass;
     if (_match(const [TokenType.less])) {
+      _consume(TokenType.identifier, 'Expect superclass name.');
       superClass = VariableExpression(_previous);
     } else {
       superClass = null;

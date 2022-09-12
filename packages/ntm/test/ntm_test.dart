@@ -586,5 +586,86 @@ class MyClass {
         verifyNever(() => stderr.writeln(any()));
       });
     });
+
+    group('Inheritance', () {
+      test('It should inherit the method from the super class', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class SuperClass {
+  superMethod() {
+    print 'superMethod';
+  }
+}
+
+class SubClass < SuperClass {
+  subMethod() {
+    print 'subMethod';
+  }
+}
+
+var instance = SubClass();
+instance.superMethod();
+instance.subMethod();
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        final stdoutCaptured = verify(
+          () => stdout.writeln(captureAny()),
+        ).captured;
+        expect(
+          stdoutCaptured,
+          const ['superMethod', 'subMethod'],
+        );
+        verifyNever(() => stderr.writeln(any()));
+      });
+
+      test('It should only allow class to inherit from another class', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+var NotAClass = 'I am totally not a class';
+
+class Subclass < NotAClass {}
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln(
+            '[3:26] Superclass must be a class, but "NotAClass" is not, so "Subclass" cannot inherit from it.',
+          ),
+        ).called(1);
+      });
+
+      test('It should not allow a class to extend itself', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('class MyClass < MyClass {}');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln(
+            '[1:24] Class "MyClass" cannot inherit from itself.',
+          ),
+        ).called(1);
+      });
+    });
   });
 }
