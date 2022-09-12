@@ -758,31 +758,32 @@ instance.method();
         });
 
         test(
-            'It throw an error when super is used in a class that do not extend another class',
-            () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('''
+          'It throw an error when super is used in a class that do not extend another class',
+          () {
+            final stdout = _MockStdout();
+            final stderr = _MockStdout();
+            IOOverrides.runZoned(
+              () {
+                Ntm().run('''
 class MyClass {
   method() {
     super.method();
   }
 }
 ''');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
+              },
+              stdout: () => stdout,
+              stderr: () => stderr,
+            );
 
-          verifyNever(() => stdout.writeln(any()));
-          verify(
-            () => stderr.writeln(
-              '[3:9] Cannot use "super" in a class with no superclass.',
-            ),
-          ).called(1);
-        });
+            verifyNever(() => stdout.writeln(any()));
+            verify(
+              () => stderr.writeln(
+                '[3:9] Cannot use "super" in a class with no superclass.',
+              ),
+            ).called(1);
+          },
+        );
       });
     });
   });

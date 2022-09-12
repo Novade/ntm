@@ -181,16 +181,16 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _declare(statement.name);
     _define(statement.name);
 
-    if (statement.superClass != null) {
-      if (statement.name.lexeme == statement.superClass!.name.lexeme) {
+    if (statement.superclass != null) {
+      if (statement.name.lexeme == statement.superclass!.name.lexeme) {
         _errors.add(ResolverError(
-          token: statement.superClass!.name,
+          token: statement.superclass!.name,
           message:
               'Class "${statement.name.lexeme}" cannot inherit from itself.',
         ));
       }
       _currentClass = _ClassType.subClass;
-      _resolveExpression(statement.superClass!);
+      _resolveExpression(statement.superclass!);
 
       // If the class declaration has a superclass, then we create a new scope
       // surrounding all of its methods. In that scope, we define the name
@@ -221,7 +221,7 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
     // Once we’re done resolving the class’s methods, we discard that
     // scope with the name "super".
-    if (statement.superClass != null) {
+    if (statement.superclass != null) {
       _endScope();
     }
 

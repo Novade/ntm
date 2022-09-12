@@ -39,7 +39,7 @@ class ClassStatement extends Statement {
   const ClassStatement({
     required this.name,
     required this.methods,
-    this.superClass,
+    this.superclass,
   });
 
   final Token name;
@@ -52,7 +52,7 @@ class ClassStatement extends Statement {
   /// runtime, that identifier is evaluated as a variable access. Wrapping the
   /// name in an Expr.Variable early on in the parser gives us an object that
   /// the resolver can hang the resolution information off of.
-  final VariableExpression? superClass;
+  final VariableExpression? superclass;
 
   @override
   T accept<T>(StatementVisitor<T> visitor) {

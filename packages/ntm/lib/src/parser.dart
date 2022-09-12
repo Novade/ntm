@@ -72,12 +72,12 @@ class Parser {
   Statement _classDeclaration() {
     final name = _consume(TokenType.identifier, 'Expect class name.');
 
-    final VariableExpression? superClass;
+    final VariableExpression? superclass;
     if (_match(const [TokenType.less])) {
       _consume(TokenType.identifier, 'Expect superclass name.');
-      superClass = VariableExpression(_previous);
+      superclass = VariableExpression(_previous);
     } else {
-      superClass = null;
+      superclass = null;
     }
 
     _consume(TokenType.leftBrace, 'Expect "{" before class body.');
@@ -91,7 +91,7 @@ class Parser {
     return ClassStatement(
       name: name,
       methods: methods,
-      superClass: superClass,
+      superclass: superclass,
     );
   }
 

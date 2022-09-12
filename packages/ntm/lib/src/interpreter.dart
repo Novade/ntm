@@ -158,7 +158,7 @@ class Interpreter
   @override
   Object? visitSuperExpression(SuperExpression expression) {
     final distance = _locals[expression]!;
-    final superClass = _environment.getLexemeAt(distance, 'super') as NtmClass;
+    final superclass = _environment.getLexemeAt(distance, 'super') as NtmClass;
 
     // We do control the layout of the environment chains. The environment where
     // `this` is bound is always right inside the environment where we store
@@ -168,7 +168,7 @@ class Interpreter
       'this',
     ) as NtmInstance;
 
-    final method = superClass.findMethod(expression.method.lexeme);
+    final method = superclass.findMethod(expression.method.lexeme);
 
     if (method == null) {
       errors.add(RuntimeError(
@@ -245,28 +245,28 @@ class Interpreter
 
   @override
   void visitClassStatement(ClassStatement statement) {
-    final Object? superClass;
-    if (statement.superClass != null) {
-      final potentialSuperClass = _evaluate(statement.superClass!);
+    final Object? superclass;
+    if (statement.superclass != null) {
+      final potentialSuperClass = _evaluate(statement.superclass!);
       if (potentialSuperClass is! NtmClass) {
         errors.add(RuntimeError(
-          token: statement.superClass!.name,
+          token: statement.superclass!.name,
           message:
-              'Superclass must be a class, but "${statement.superClass!.name.lexeme}" is not, so "${statement.name.lexeme}" cannot inherit from it.',
+              'Superclass must be a class, but "${statement.superclass!.name.lexeme}" is not, so "${statement.name.lexeme}" cannot inherit from it.',
         ));
-        superClass = null;
+        superclass = null;
       } else {
-        superClass = potentialSuperClass;
+        superclass = potentialSuperClass;
       }
     } else {
-      superClass = null;
+      superclass = null;
     }
 
     _environment.define(statement.name.lexeme, null);
 
-    if (superClass != null) {
+    if (superclass != null) {
       _environment = Environment(enclosing: _environment);
-      _environment.define('super', superClass);
+      _environment.define('super', superclass);
     }
 
     final methods = Map.fromEntries(statement.methods.map((method) {
@@ -282,9 +282,9 @@ class Interpreter
     final ntmClass = NtmClass(
       name: statement.name.lexeme,
       methods: methods,
-      superClass: superClass as NtmClass?,
+      superclass: superclass as NtmClass?,
     );
-    if (superClass != null) {
+    if (superclass != null) {
       _environment = _environment.enclosing!;
     }
     _environment.assign(statement.name, ntmClass);
