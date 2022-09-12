@@ -39,10 +39,20 @@ class ClassStatement extends Statement {
   const ClassStatement({
     required this.name,
     required this.methods,
+    this.superClass,
   });
 
   final Token name;
   final List<FunctionStatement> methods;
+
+  /// The super class, if any.
+  ///
+  /// We store the superclass name as an [VariableExpression], not a [Token].
+  /// The grammar restricts the superclass clause to a single identifier, but at
+  /// runtime, that identifier is evaluated as a variable access. Wrapping the
+  /// name in an Expr.Variable early on in the parser gives us an object that
+  /// the resolver can hang the resolution information off of.
+  final VariableExpression? superClass;
 
   @override
   T accept<T>(StatementVisitor<T> visitor) {

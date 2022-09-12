@@ -219,6 +219,19 @@ class Interpreter
 
   @override
   void visitClassStatement(ClassStatement statement) {
+    final Object? superClass;
+    if (statement.superClass != null) {
+      superClass = _evaluate(statement.superClass!);
+      if (superClass is! NtmClass) {
+        errors.add(RuntimeError(
+          token: statement.superClass!.name,
+          message: 'Superclass must be a class.',
+        ));
+      }
+    } else {
+      superClass = null;
+    }
+
     _environment.define(statement.name.lexeme, null);
 
     final methods = Map.fromEntries(statement.methods.map((method) {
@@ -234,6 +247,7 @@ class Interpreter
     final ntmClass = NtmClass(
       name: statement.name.lexeme,
       methods: methods,
+      superClass: superClass as NtmClass?,
     );
     _environment.assign(statement.name, ntmClass);
   }

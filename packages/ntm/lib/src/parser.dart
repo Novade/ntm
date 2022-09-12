@@ -66,10 +66,19 @@ class Parser {
   }
 
   /// ```
-  /// classDeclaration -> 'class' IDENTIFIER '{' function* '}; ;
+  /// classDeclaration -> 'class' IDENTIFIER ( '<' IDENTIFIER )?
+  ///                     '{' function* '}; ;
   /// ```
   Statement _classDeclaration() {
     final name = _consume(TokenType.identifier, 'Expect class name.');
+
+    final VariableExpression? superClass;
+    if (_match(const [TokenType.less])) {
+      superClass = VariableExpression(_previous);
+    } else {
+      superClass = null;
+    }
+
     _consume(TokenType.leftBrace, 'Expect "{" before class body.');
 
     final methods = <FunctionStatement>[];
@@ -78,7 +87,11 @@ class Parser {
     }
 
     _consume(TokenType.rightBrace, 'Expect "}" after class body.');
-    return ClassStatement(name: name, methods: methods);
+    return ClassStatement(
+      name: name,
+      methods: methods,
+      superClass: superClass,
+    );
   }
 
   /// ```

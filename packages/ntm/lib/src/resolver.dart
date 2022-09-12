@@ -176,6 +176,14 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _declare(statement.name);
     _define(statement.name);
 
+    if (statement.superClass != null &&
+        statement.name.lexeme == statement.name.lexeme) {
+      _errors.add(ResolverError(
+        token: statement.superClass!.name,
+        message: 'A class cannot inherit from itself.',
+      ));
+    }
+
     // Before we step in and start resolving the method bodies, we push a new
     // scope and define “this” in it as if it were a variable. Then, when we’re
     // done, we discard that surrounding scope.

@@ -12,10 +12,12 @@ class NtmClass implements Describable, Callable {
   const NtmClass({
     required this.name,
     required this.methods,
+    this.superClass,
   });
 
   final String name;
   final Map<String, NtmFunction> methods;
+  final NtmClass? superClass;
 
   @override
   int get arity {
