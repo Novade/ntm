@@ -156,6 +156,32 @@ class Interpreter
   }
 
   @override
+  Object? visitSuperExpression(SuperExpression expression) {
+    final distance = _locals[expression]!;
+    final superClass = _environment.getLexemeAt(distance, 'super') as NtmClass;
+
+    // We do control the layout of the environment chains. The environment where
+    // `this` is bound is always right inside the environment where we store
+    // `super`.
+    final object = _environment.getLexemeAt(
+      distance - 1,
+      'this',
+    ) as NtmInstance;
+
+    final method = superClass.findMethod(expression.method.lexeme);
+
+    if (method == null) {
+      errors.add(RuntimeError(
+        token: expression.method,
+        message: 'Undefined super property "${expression.method.lexeme}".',
+      ));
+      return null;
+    } else {
+      return method.bind(object);
+    }
+  }
+
+  @override
   Object? visitUnaryExpression(UnaryExpression expression) {
     final right = _evaluate(expression.right);
     switch (expression.operator.type) {
@@ -238,6 +264,11 @@ class Interpreter
 
     _environment.define(statement.name.lexeme, null);
 
+    if (superClass != null) {
+      _environment = Environment(enclosing: _environment);
+      _environment.define('super', superClass);
+    }
+
     final methods = Map.fromEntries(statement.methods.map((method) {
       return MapEntry(
         method.name.lexeme,
@@ -253,6 +284,9 @@ class Interpreter
       methods: methods,
       superClass: superClass as NtmClass?,
     );
+    if (superClass != null) {
+      _environment = _environment.enclosing!;
+    }
     _environment.assign(statement.name, ntmClass);
   }
 

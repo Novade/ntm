@@ -18,7 +18,12 @@ enum _FunctionType {
 
 enum _ClassType {
   none,
+
+  /// Inside a class that doesn't have a super class.
   ntmClass,
+
+  /// Inside a class that has a super class.
+  subClass,
 }
 
 class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
@@ -176,12 +181,22 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     _declare(statement.name);
     _define(statement.name);
 
-    if (statement.superClass != null &&
-        statement.name.lexeme == statement.superClass!.name.lexeme) {
-      _errors.add(ResolverError(
-        token: statement.superClass!.name,
-        message: 'Class "${statement.name.lexeme}" cannot inherit from itself.',
-      ));
+    if (statement.superClass != null) {
+      if (statement.name.lexeme == statement.superClass!.name.lexeme) {
+        _errors.add(ResolverError(
+          token: statement.superClass!.name,
+          message:
+              'Class "${statement.name.lexeme}" cannot inherit from itself.',
+        ));
+      }
+      _currentClass = _ClassType.subClass;
+      _resolveExpression(statement.superClass!);
+
+      // If the class declaration has a superclass, then we create a new scope
+      // surrounding all of its methods. In that scope, we define the name
+      // “super”.
+      _beginScope();
+      _scopes.last['super'] = true;
     }
 
     // Before we step in and start resolving the method bodies, we push a new
@@ -203,8 +218,16 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
       }
       _resolveFunction(method, declaration);
     }
-    _currentClass = enclosingClass;
+
+    // Once we’re done resolving the class’s methods, we discard that
+    // scope with the name "super".
+    if (statement.superClass != null) {
+      _endScope();
+    }
+
     _endScope();
+
+    _currentClass = enclosingClass;
   }
 
   @override
@@ -286,6 +309,22 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
     // TODO: Add fields to class.
     _resolveExpression(expression.value);
     _resolveExpression(expression.object);
+  }
+
+  @override
+  void visitSuperExpression(SuperExpression expression) {
+    if (_currentClass == _ClassType.none) {
+      _errors.add(ResolverError(
+        token: expression.keyword,
+        message: 'Cannot use "super" outside of a class.',
+      ));
+    } else if (_currentClass != _ClassType.subClass) {
+      _errors.add(ResolverError(
+        token: expression.keyword,
+        message: 'Cannot use "super" in a class with no superclass.',
+      ));
+    }
+    _resolveLocal(expression, expression.keyword);
   }
 
   @override

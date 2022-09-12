@@ -666,6 +666,124 @@ class Subclass < NotAClass {}
           ),
         ).called(1);
       });
+
+      group('super', () {
+        test('It should call the super method', () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('''
+class SuperClass {
+  method() {
+    print 'superMethod';
+  }
+}
+
+class SubClass < SuperClass {
+  method() {
+    super.method();
+    print 'subMethod';
+  }
+}
+
+var instance = SubClass();
+instance.method();
+''');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          final stdoutCaptured = verify(
+            () => stdout.writeln(captureAny()),
+          ).captured;
+          expect(
+            stdoutCaptured,
+            const ['superMethod', 'subMethod'],
+          );
+          verifyNever(() => stderr.writeln(any()));
+        });
+
+        test(
+          'It throw an error when calling a super method that does not exist',
+          () {
+            final stdout = _MockStdout();
+            final stderr = _MockStdout();
+            IOOverrides.runZoned(
+              () {
+                Ntm().run('''
+class SuperClass {}
+
+class SubClass < SuperClass {
+  method() {
+    super.method();
+  }
+}
+
+var instance = SubClass();
+instance.method();
+''');
+              },
+              stdout: () => stdout,
+              stderr: () => stderr,
+            );
+
+            verifyNever(() => stdout.writeln(any()));
+            verify(
+              () => stderr.writeln(
+                '[5:16] Undefined super property "method".',
+              ),
+            ).called(1);
+          },
+        );
+
+        test('It throw an error when super is used outside a class', () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('super.method();');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          verifyNever(() => stdout.writeln(any()));
+          verify(
+            () => stderr.writeln(
+              '[1:6] Cannot use "super" outside of a class.',
+            ),
+          ).called(1);
+        });
+
+        test(
+            'It throw an error when super is used in a class that do not extend another class',
+            () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('''
+class MyClass {
+  method() {
+    super.method();
+  }
+}
+''');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          verifyNever(() => stdout.writeln(any()));
+          verify(
+            () => stderr.writeln(
+              '[3:9] Cannot use "super" in a class with no superclass.',
+            ),
+          ).called(1);
+        });
+      });
     });
   });
 }

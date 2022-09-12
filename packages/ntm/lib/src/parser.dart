@@ -544,6 +544,11 @@ class Parser {
     return expression;
   }
 
+  /// ```
+  /// primary -> 'true' | 'false' | 'null' | 'this'
+  ///           | NUMBER | STRING | IDENTIFIER | '(' expression ')'
+  ///           | 'super' '.' IDENTIFIER ;
+  /// ```
   Expression _primary() {
     if (_match(const [TokenType.falseKeyword])) {
       return LiteralExpression(value: false);
@@ -554,9 +559,17 @@ class Parser {
     if (_match(const [TokenType.nullKeyword])) {
       return LiteralExpression(value: null);
     }
-
     if (_match(const [TokenType.number, TokenType.string])) {
       return LiteralExpression(value: _previous.literal);
+    }
+    if (_match(const [TokenType.superKeyword])) {
+      final keyword = _previous;
+      _consume(TokenType.dot, 'Expect "." after "super".');
+      final method = _consume(
+        TokenType.identifier,
+        'Expect superclass method name.',
+      );
+      return SuperExpression(keyword: keyword, method: method);
     }
     if (_match(const [TokenType.thisKeyword])) {
       return ThisExpression(keyword: _previous);
