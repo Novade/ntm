@@ -1,6 +1,4 @@
-## Goals:
+## Ntm
 
-- [ ] Have comments
-- [ ] Have a parser
-- [ ] Have a linter
-- [ ] Support LSA (Language server analysis)
+
+This is inspired by [Crafting interpreter](https://www.craftinginterpreters.com/index.html).

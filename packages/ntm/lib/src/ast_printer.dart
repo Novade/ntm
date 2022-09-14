@@ -89,4 +89,10 @@ class AstPrint implements ExpressionVisitor<String> {
     // TODO: implement visitThisExpression
     throw UnimplementedError();
   }
+
+  @override
+  String visitSuperExpression(SuperExpression expression) {
+    // TODO: implement visitSuperExpression
+    throw UnimplementedError();
+  }
 }
