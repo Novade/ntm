@@ -41,10 +41,6 @@ void _run(String script) {
   _ntm.run(script);
 }
 
-void _error(int line, String message) {
-  report(line: line, where: '', message: message);
-}
-
 var _hadError = false;
 
 void report({
