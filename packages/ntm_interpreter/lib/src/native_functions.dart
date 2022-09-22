@@ -1,7 +1,7 @@
 import 'callable.dart';
 import 'interpreter.dart';
 
-// TODO: Make printe a native method.
+// TODO: Make print a native method.
 
 class Clock extends Callable {
   const Clock();
