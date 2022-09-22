@@ -1,0 +1,27 @@
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dart-lang/setup-dart@v1.3
+      - run: dart pub global activate melos
+      - run: melos bootstrap
+      - run: melos run format
+      - run: melos run analyze
+      - run: melos run test
+  spelling:
+    # Verifies there is no spelling errors in the code.
+    runs-on: ubuntu-latest
+    name: Check code spelling
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check spelling
+        uses: streetsidesoftware/cspell-action@v2
