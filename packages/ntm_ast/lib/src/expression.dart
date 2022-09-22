@@ -1,4 +1,4 @@
-import 'token.dart';
+import 'package:ntm_core/ntm_core.dart';
 
 abstract class ExpressionVisitor<T> {
   const ExpressionVisitor();

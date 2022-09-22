@@ -1,5 +1,5 @@
-import 'package:ntm_ast/src/token_type.dart';
-import 'package:ntm_core/ntm_core.dart';
+import 'describable.dart';
+import 'token_type.dart';
 
 /// Stores the information about a token.
 class Token extends Describable {
