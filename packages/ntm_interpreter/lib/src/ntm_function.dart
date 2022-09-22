@@ -1,9 +1,10 @@
-import 'package:ntm/src/callable.dart';
-import 'package:ntm/src/environment.dart';
-import 'package:ntm/src/interpreter.dart';
-import 'package:ntm/src/ntm_instance.dart';
-import 'package:ntm/src/return_exception.dart';
-import 'package:ntm/src/statement.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+
+import 'callable.dart';
+import 'environment.dart';
+import 'interpreter.dart';
+import 'ntm_instance.dart';
+import 'return_exception.dart';
 
 // TODO: Allow anonymous functions
 // https://www.craftinginterpreters.com/functions.html#challenges

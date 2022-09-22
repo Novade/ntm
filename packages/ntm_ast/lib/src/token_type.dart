@@ -119,6 +119,7 @@ enum TokenType {
   eof,
 }
 
+/// The different keywords of the ntm language.
 const keywords = {
   'class': TokenType.classKeyword,
   'else': TokenType.elseKeyword,

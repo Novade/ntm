@@ -1,5 +1,6 @@
-import 'package:ntm/src/token.dart';
-import 'package:ntm/src/token_type.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+
+import 'scanner_error.dart';
 
 /// Stores the raw source code as a simple string, walks through it and
 /// constructs [_tokens] until it runs out of characters. Then it appends on
@@ -11,7 +12,7 @@ class Scanner {
 
   final String source;
   final List<Token> _tokens = [];
-  final List<TokenError> _errors = [];
+  final List<ScannerError> _errors = [];
 
   var _start = 0;
   var _current = 0;
@@ -217,7 +218,7 @@ class Scanner {
 
   void _addError(String message) {
     _errors.add(
-      TokenError(
+      ScannerError(
         line: _line,
         column: _column,
         message: message,
@@ -309,5 +310,5 @@ class ScanResult {
   });
 
   final List<Token> tokens;
-  final List<TokenError> errors;
+  final List<ScannerError> errors;
 }

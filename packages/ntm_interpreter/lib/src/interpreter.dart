@@ -1,18 +1,16 @@
 import 'dart:io';
 
-import 'package:ntm/src/callable.dart';
-import 'package:ntm/src/describable.dart';
-import 'package:ntm/src/environment.dart';
-import 'package:ntm/src/expression.dart';
-import 'package:ntm/src/native_functions.dart';
-import 'package:ntm/src/ntm_class.dart';
-import 'package:ntm/src/ntm_function.dart';
-import 'package:ntm/src/ntm_instance.dart';
-import 'package:ntm/src/return_exception.dart';
-import 'package:ntm/src/runtime_error.dart';
-import 'package:ntm/src/statement.dart';
-import 'package:ntm/src/token.dart';
-import 'package:ntm/src/token_type.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+import 'package:ntm_core/ntm_core.dart';
+import 'package:ntm_interpreter/src/environment.dart';
+import 'package:ntm_interpreter/src/return_exception.dart';
+import 'package:ntm_interpreter/src/runtime_error.dart';
+
+import 'callable.dart';
+import 'native_functions.dart';
+import 'ntm_class.dart';
+import 'ntm_function.dart';
+import 'ntm_instance.dart';
 
 /// Unlike expressions, statements produce no values, so the return type of the
 /// visit methods is `void`, not [Object?].

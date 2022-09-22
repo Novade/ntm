@@ -1,16 +1,7 @@
-import 'package:ntm_scanner/ntm_scanner.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('A group of tests', () {
-    final awesome = Awesome();
-
-    setUp(() {
-      // Additional setup goes here.
-    });
-
-    test('First Test', () {
-      expect(awesome.isAwesome, isTrue);
-    });
+  test('Expect true to be true', () {
+    expect(true, isTrue);
   });
 }

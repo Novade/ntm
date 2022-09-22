@@ -1,4 +1,4 @@
-import 'package:ntm/src/interpreter.dart';
+import 'package:ntm_interpreter/src/interpreter.dart';
 
 abstract class Callable {
   const Callable();

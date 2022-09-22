@@ -1,8 +1,8 @@
-import 'package:ntm/src/expression.dart';
+import 'expression.dart';
 
 /// A visitor that produces an unambiguous string representation of the AST.
-class AstPrint implements ExpressionVisitor<String> {
-  const AstPrint();
+class AstPrinter implements ExpressionVisitor<String> {
+  const AstPrinter();
   String print(Expression expression) {
     return expression.accept(this);
   }

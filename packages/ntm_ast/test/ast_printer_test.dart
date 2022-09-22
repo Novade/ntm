@@ -1,7 +1,4 @@
-import 'package:ntm/src/ast_printer.dart';
-import 'package:ntm/src/expression.dart';
-import 'package:ntm/src/token.dart';
-import 'package:ntm/src/token_type.dart';
+import 'package:ntm_ast/ntm_ast.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -26,6 +23,6 @@ void main() {
         expression: LiteralExpression(value: 45.67),
       ),
     );
-    expect(expression.accept(const AstPrint()), '(* (- 123) (group 45.67))');
+    expect(expression.accept(const AstPrinter()), '(* (- 123) (group 45.67))');
   });
 }

@@ -1,5 +1,5 @@
-import 'package:ntm/src/describable_error.dart';
-import 'package:ntm/src/token.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+import 'package:ntm_core/ntm_core.dart';
 
 class RuntimeError implements DescribableError {
   const RuntimeError({

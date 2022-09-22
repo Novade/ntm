@@ -1,8 +1,4 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library ntm_core;
 
-export 'src/ntm_core_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/describable.dart';
+export 'src/describable_error.dart';

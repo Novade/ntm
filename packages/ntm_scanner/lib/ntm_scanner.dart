@@ -1,8 +1,4 @@
-/// Support for doing something awesome.
-///
-/// More dartdocs go here.
 library ntm_scanner;
 
-export 'src/ntm_scanner_base.dart';
-
-// TODO: Export any libraries intended for clients of this package.
+export 'src/scanner.dart';
+export 'src/scanner_error.dart';

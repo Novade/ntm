@@ -1,8 +1,9 @@
-import 'package:ntm/src/callable.dart';
-import 'package:ntm/src/describable.dart';
-import 'package:ntm/src/interpreter.dart';
-import 'package:ntm/src/ntm_function.dart';
-import 'package:ntm/src/ntm_instance.dart';
+import 'package:ntm_core/ntm_core.dart';
+
+import 'callable.dart';
+import 'interpreter.dart';
+import 'ntm_function.dart';
+import 'ntm_instance.dart';
 
 // TODO: Add support to static method, fields
 // https://www.craftinginterpreters.com/classes.html#challenges (`NtmClass`

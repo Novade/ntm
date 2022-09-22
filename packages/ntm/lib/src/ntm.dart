@@ -1,9 +1,8 @@
 import 'dart:io';
 
-import 'package:ntm/src/interpreter.dart';
-import 'package:ntm/src/parser.dart';
-import 'package:ntm/src/resolver.dart';
-import 'package:ntm/src/scanner.dart';
+import 'package:ntm_interpreter/ntm_interpreter.dart';
+import 'package:ntm_parser/ntm_parser.dart';
+import 'package:ntm_scanner/ntm_scanner.dart';
 
 class Ntm {
   Ntm();

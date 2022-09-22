@@ -1,5 +1,6 @@
-import 'package:ntm/src/runtime_error.dart';
-import 'package:ntm/src/token.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+
+import 'runtime_error.dart';
 
 /// Default values given to variables that are declared but not defined.
 class _Undefined {

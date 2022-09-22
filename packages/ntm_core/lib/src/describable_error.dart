@@ -1,4 +1,4 @@
-import 'package:ntm/src/describable.dart';
+import 'describable.dart';
 
 abstract class DescribableError implements Exception, Describable {
   const DescribableError();

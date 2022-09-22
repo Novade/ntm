@@ -1,5 +1,5 @@
-import 'package:ntm/src/expression.dart';
-import 'package:ntm/src/token.dart';
+import 'expression.dart';
+import 'token.dart';
 
 abstract class Statement {
   const Statement();

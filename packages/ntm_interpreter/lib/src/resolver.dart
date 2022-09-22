@@ -1,13 +1,15 @@
-import 'package:ntm/src/describable_error.dart';
-import 'package:ntm/src/expression.dart';
-import 'package:ntm/src/interpreter.dart';
-import 'package:ntm/src/statement.dart';
-import 'package:ntm/src/token.dart';
+import 'package:ntm_ast/ntm_ast.dart';
+import 'package:ntm_core/ntm_core.dart';
+
+import 'interpreter.dart';
 
 // TODO:
-// Warn user for:
-// - Dead code after return statement.
-// - Unused local variable.
+// - Unlink resolver and interpreter and make the resolver(analyzer?) its own
+//   package (The text editor doesn't need the interpreter, but it needs the
+//   resolver).
+// - Warn user for:
+//   - Dead code after return statement.
+//   - Unused local variable.
 
 enum _FunctionType {
   none,
