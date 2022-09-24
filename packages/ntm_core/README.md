@@ -1,3 +1,3 @@
 ## ntm_core
 
-Contains utilities types and methods shared across the ntm packages.
+Core package containing ntm utility classes and tokens.

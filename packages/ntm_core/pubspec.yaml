@@ -1,5 +1,5 @@
 name: ntm_core
-description: A starting point for Dart libraries or applications.
+description: Core ntm library with tokens and utility classes.
 version: 0.0.0
 publish_to: none
 
