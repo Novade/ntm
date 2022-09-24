@@ -279,7 +279,7 @@ class Scanner {
       }
     }
     final text = source.substring(_start, _current);
-    final value = double.tryParse(text);
+    final value = num.tryParse(text);
     if (value == null) {
       _addError('Invalid number.');
       return;
