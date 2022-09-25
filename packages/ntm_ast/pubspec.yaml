@@ -1,5 +1,5 @@
 name: ntm_ast
-description: A starting point for Dart libraries or applications.
+description: The ntm ast nodes.
 version: 0.0.0
 publish_to: none
 

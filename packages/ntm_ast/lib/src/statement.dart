@@ -2,31 +2,74 @@ import 'package:ntm_core/ntm_core.dart';
 
 import 'expression.dart';
 
-abstract class Statement {
-  const Statement();
-
-  T accept<T>(StatementVisitor<T> visitor);
-}
-
+/// A visitor that can visit a statement.
 abstract class StatementVisitor<T> {
+  /// A visitor that can visit a statement.
   const StatementVisitor();
 
+  /// Visits a block statement.
   T visitBlockStatement(BlockStatement statement);
+
+  /// Visits a class statement.
   T visitClassStatement(ClassStatement statement);
+
+  /// Visits an expression statement.
   T visitExpressionStatement(ExpressionStatement statement);
-  T visitPrintStatement(PrintStatement statement);
-  T visitReturnStatement(ReturnStatement statement);
-  T visitVarStatement(VarStatement statement);
+
+  /// Visits a function statement.
   T visitFunctionStatement(FunctionStatement statement);
+
+  /// Visits an if statement.
   T visitIfStatement(IfStatement statement);
+
+  /// Visits a print statement.
+  T visitPrintStatement(PrintStatement statement);
+
+  /// Visits a return statement.
+  T visitReturnStatement(ReturnStatement statement);
+
+  /// Visits a var statement.
+  T visitVarStatement(VarStatement statement);
+
+  /// Visits a while statement.
   T visitWhileStatement(WhileStatement statement);
 }
 
+/// A ntm statement.
+abstract class Statement {
+  /// A ntm statement.
+  const Statement();
+
+  /// Accept a visitor.
+  T accept<T>(StatementVisitor<T> visitor);
+}
+
+/// {@template ntm.ast.block_statement}
+/// A block statement.
+///
+/// ```ntm
+/// {
+///   a = b;
+///   f();
+/// }
+/// ```
+/// {@endtemplate}
 class BlockStatement extends Statement {
+  /// {@macro ntm.ast.block_statement}
   const BlockStatement({
     this.statements = const [],
   });
 
+  /// The list of statements.
+  ///
+  /// [`a = b;`, `f();`] in the example
+  ///
+  /// ```ntm
+  /// {
+  ///   a = b;
+  ///   f();
+  /// }
+  /// ```
   final Iterable<Statement> statements;
 
   @override
@@ -35,15 +78,44 @@ class BlockStatement extends Statement {
   }
 }
 
+/// {@template ntm.ast.class_statement}
+/// A class statement.
+///
+/// ```ntm
+/// class A < B {
+///   a() {}
+///   b() {}
+/// }
+/// ```
+/// {@endtemplate}
 // TODO: Add fields.
 class ClassStatement extends Statement {
+  /// {@macro ntm.ast.class_statement}
   const ClassStatement({
     required this.name,
     required this.methods,
     this.superclass,
   });
 
+  /// The name of the class.
+  ///
+  /// `A` in the example
+  ///
+  /// ```ntm
+  /// class A {}
+  /// ```
   final Token name;
+
+  /// The list of methods.
+  ///
+  /// [`a() {}`, `b() {}`] in the example
+  ///
+  /// ```ntm
+  /// class A {
+  ///   a() {}
+  ///   b() {}
+  /// }
+  /// ```
   final List<FunctionStatement> methods;
 
   /// The super class, if any.
@@ -51,8 +123,14 @@ class ClassStatement extends Statement {
   /// We store the superclass name as an [VariableExpression], not a [Token].
   /// The grammar restricts the superclass clause to a single identifier, but at
   /// runtime, that identifier is evaluated as a variable access. Wrapping the
-  /// name in an Expr.Variable early on in the parser gives us an object that
-  /// the resolver can hang the resolution information off of.
+  /// name in an [VariableExpression] early on in the parser gives us an object
+  /// that the resolver can hang the resolution information off of.
+  ///
+  /// `B` in the example
+  ///
+  /// ```nmt
+  /// class A < B {}
+  /// ```
   final VariableExpression? superclass;
 
   @override
@@ -61,9 +139,25 @@ class ClassStatement extends Statement {
   }
 }
 
+/// {@template ntm.ast.expression_statement}
+/// An expression statement.
+///
+/// ```ntm
+/// f();
+/// 2;
+/// ```
+/// {@endtemplate}
 class ExpressionStatement extends Statement {
+  /// {@macro ntm.ast.expression_statement}
   const ExpressionStatement(this.expression);
 
+  /// The expression of the statement.
+  ///
+  /// `f()` in the example
+  ///
+  /// ```ntm
+  /// f();
+  /// ```
   final Expression expression;
 
   @override
@@ -72,71 +166,50 @@ class ExpressionStatement extends Statement {
   }
 }
 
-class PrintStatement extends Statement {
-  const PrintStatement(this.expression);
-
-  final Expression expression;
-
-  @override
-  T accept<T>(StatementVisitor<T> visitor) {
-    return visitor.visitPrintStatement(this);
-  }
-}
-
-class ReturnStatement extends Statement {
-  const ReturnStatement({
-    required this.keyword,
-    required this.value,
-  });
-
-  final Token keyword;
-  final Expression? value;
-
-  @override
-  T accept<T>(StatementVisitor<T> visitor) {
-    return visitor.visitReturnStatement(this);
-  }
-}
-
-class VarStatement extends Statement {
-  const VarStatement({
-    required this.name,
-    required this.initializer,
-  });
-
-  final Token name;
-  final Expression? initializer;
-
-  @override
-  T accept<T>(StatementVisitor<T> visitor) {
-    return visitor.visitVarStatement(this);
-  }
-}
-
-class WhileStatement extends Statement {
-  const WhileStatement({
-    required this.condition,
-    required this.body,
-  });
-
-  final Expression condition;
-  final Statement body;
-
-  @override
-  T accept<T>(StatementVisitor<T> visitor) {
-    return visitor.visitWhileStatement(this);
-  }
-}
-
+/// {@template ntm.ast.function_statement}
+/// A function statement.
+///
+/// ```ntm
+/// function f(p1, p2) {
+///   return p1 + p2;
+/// }
+/// ```
+/// {@endtemplate}
 class FunctionStatement extends Statement {
+  /// {@macro ntm.ast.function_statement}
   const FunctionStatement({
     required this.name,
     required this.params,
     required this.body,
   });
 
+  /// The name of the function.
+  ///
+  /// `f` in the example
+  ///
+  /// ```ntm
+  /// function f() {}
+  /// ```
   final Token name;
+
+  /// The list of parameters.
+  ///
+  /// [`p1`, `p2`] in the example
+  ///
+  /// ```ntm
+  /// function f(p1, p2) {}
+  /// ```
   final List<Token> params;
+
+  /// The body of the function.
+  ///
+  /// `{ return p1 + p2; }` in the example
+  ///
+  /// ```ntm
+  /// function f(p1, p2) {
+  ///   return p1 + p2;
+  /// }
+  /// ```
   final List<Statement> body;
 
   @override
@@ -145,19 +218,222 @@ class FunctionStatement extends Statement {
   }
 }
 
+/// {@template ntm.ast.if_statement}
+/// An if statement.
+///
+/// ```ntm
+/// if (a) {
+///   b();
+/// } else {
+///   c();
+/// }
+/// ```
+/// {@endtemplate}
 class IfStatement extends Statement {
+  /// {@macro ntm.ast.if_statement}
   const IfStatement({
     required this.condition,
     required this.thenBranch,
     this.elseBranch,
   });
 
+  /// The condition expression.
+  ///
+  /// `a` in the example
+  /// ```ntm
+  /// if (a) {
+  ///   b();
+  /// }
+  /// ```
   final Expression condition;
+
+  /// The "then" branch.
+  ///
+  /// `{ b(); }` in the example
+  ///
+  /// ```ntm
+  /// if (a) {
+  ///   b();
+  /// } else {
+  ///   c();
+  /// }
+  /// ```
   final Statement thenBranch;
+
+  /// The "else" branch.
+  ///
+  /// `{ c(); }` in the example
+  ///
+  /// ```ntm
+  /// if (a) {
+  ///   b();
+  /// } else {
+  ///   c();
+  /// }
+  /// ```
+  ///
+  /// In can be `null` in the case of
+  ///
+  /// ```ntm
+  /// if (a) {
+  ///   b();
+  /// }
+  /// ```
   final Statement? elseBranch;
 
   @override
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitIfStatement(this);
+  }
+}
+
+/// {@template ntm.ast.print_statement}
+/// A print statement.
+///
+/// ```ntm
+/// print 'Hello World';
+/// ```
+/// {@endtemplate}
+class PrintStatement extends Statement {
+  /// {@macro ntm.ast.print_statement}
+  const PrintStatement(this.expression);
+
+  /// The expression of the statement.
+  ///
+  /// `'Hello World'` in the example
+  ///
+  /// ```ntm
+  /// print 'Hello World';
+  /// ```
+  final Expression expression;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitPrintStatement(this);
+  }
+}
+
+/// {@template ntm.ast.return_statement}
+/// A return statement.
+///
+/// ```ntm
+/// return a;
+/// ```
+/// {@endtemplate}
+class ReturnStatement extends Statement {
+  /// {@macro ntm.ast.return_statement}
+  const ReturnStatement({
+    required this.keyword,
+    required this.value,
+  });
+
+  /// The `return` keyword.
+  final Token keyword;
+
+  /// The returned value.
+  ///
+  /// `a` in the example
+  ///
+  /// ```ntm
+  /// return a;
+  /// ```
+  ///
+  /// It can be `null` in the case
+  ///
+  /// ```ntm
+  /// return;
+  /// ```
+  final Expression? value;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitReturnStatement(this);
+  }
+}
+
+/// {@template ntm.ast.var_statement}
+/// A var statement.
+///
+/// ```ntm
+/// var a = b;
+/// var c;
+/// ```
+/// {@endtemplate}
+class VarStatement extends Statement {
+  /// {@macro ntm.ast.var_statement}
+  const VarStatement({
+    required this.name,
+    required this.initializer,
+  });
+
+  /// The name of the variable.
+  ///
+  /// `a` in the example
+  ///
+  /// ```ntm
+  /// var a = b;
+  /// ```
+  final Token name;
+
+  /// The initializer of the variable if any.
+  ///
+  /// `b` in the example
+  ///
+  /// ```ntm
+  /// var a = b;
+  /// ```
+  ///
+  /// It can be `null` in the case of
+  ///
+  /// ```ntm
+  /// var a;
+  /// ```
+  final Expression? initializer;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitVarStatement(this);
+  }
+}
+
+/// {@template ntm.ast.while_statement}
+/// A while statement.
+///
+/// ```ntm
+/// while(a) {
+///   f();
+/// }
+/// ```
+/// {@endtemplate}
+class WhileStatement extends Statement {
+  /// {@macro ntm.ast.while_statement}
+  const WhileStatement({
+    required this.condition,
+    required this.body,
+  });
+
+  /// The expression of the condition.
+  ///
+  /// `a` in the example
+  ///
+  /// ```ntm
+  /// while (a) {}
+  /// ```
+  final Expression condition;
+
+  /// The body of the while.
+  ///
+  /// `{ f(); }` in the example
+  ///
+  /// ```ntm
+  /// while (a) {
+  ///   f();
+  /// }
+  /// ```
+  final Statement body;
+
+  @override
+  T accept<T>(StatementVisitor<T> visitor) {
+    return visitor.visitWhileStatement(this);
   }
 }
