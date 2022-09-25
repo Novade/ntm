@@ -1,3 +1,4 @@
+/// The different ntm tokens.
 enum TokenType {
   // Single-character tokens.
 
