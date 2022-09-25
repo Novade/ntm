@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:ntm_core/ntm_core.dart';
 
 import 'expression.dart';
@@ -54,7 +55,7 @@ abstract class Statement {
 /// }
 /// ```
 /// {@endtemplate}
-class BlockStatement extends Statement {
+class BlockStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.block_statement}
   const BlockStatement({
     this.statements = const [],
@@ -76,6 +77,9 @@ class BlockStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitBlockStatement(this);
   }
+
+  @override
+  List<Object?> get props => statements.toList();
 }
 
 /// {@template ntm.ast.class_statement}
@@ -89,7 +93,7 @@ class BlockStatement extends Statement {
 /// ```
 /// {@endtemplate}
 // TODO: Add fields.
-class ClassStatement extends Statement {
+class ClassStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.class_statement}
   const ClassStatement({
     required this.name,
@@ -137,6 +141,9 @@ class ClassStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitClassStatement(this);
   }
+
+  @override
+  List<Object?> get props => [name, superclass, methods];
 }
 
 /// {@template ntm.ast.expression_statement}
@@ -147,7 +154,7 @@ class ClassStatement extends Statement {
 /// 2;
 /// ```
 /// {@endtemplate}
-class ExpressionStatement extends Statement {
+class ExpressionStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.expression_statement}
   const ExpressionStatement(this.expression);
 
@@ -164,6 +171,9 @@ class ExpressionStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitExpressionStatement(this);
   }
+
+  @override
+  List<Object?> get props => [expression];
 }
 
 /// {@template ntm.ast.function_statement}
@@ -175,7 +185,7 @@ class ExpressionStatement extends Statement {
 /// }
 /// ```
 /// {@endtemplate}
-class FunctionStatement extends Statement {
+class FunctionStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.function_statement}
   const FunctionStatement({
     required this.name,
@@ -216,6 +226,9 @@ class FunctionStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitFunctionStatement(this);
   }
+
+  @override
+  List<Object?> get props => [name, params, body];
 }
 
 /// {@template ntm.ast.if_statement}
@@ -229,7 +242,7 @@ class FunctionStatement extends Statement {
 /// }
 /// ```
 /// {@endtemplate}
-class IfStatement extends Statement {
+class IfStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.if_statement}
   const IfStatement({
     required this.condition,
@@ -285,6 +298,9 @@ class IfStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitIfStatement(this);
   }
+
+  @override
+  List<Object?> get props => [condition, thenBranch, elseBranch];
 }
 
 /// {@template ntm.ast.print_statement}
@@ -294,7 +310,7 @@ class IfStatement extends Statement {
 /// print 'Hello World';
 /// ```
 /// {@endtemplate}
-class PrintStatement extends Statement {
+class PrintStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.print_statement}
   const PrintStatement(this.expression);
 
@@ -311,6 +327,9 @@ class PrintStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitPrintStatement(this);
   }
+
+  @override
+  List<Object?> get props => [expression];
 }
 
 /// {@template ntm.ast.return_statement}
@@ -320,7 +339,7 @@ class PrintStatement extends Statement {
 /// return a;
 /// ```
 /// {@endtemplate}
-class ReturnStatement extends Statement {
+class ReturnStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.return_statement}
   const ReturnStatement({
     required this.keyword,
@@ -349,6 +368,9 @@ class ReturnStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitReturnStatement(this);
   }
+
+  @override
+  List<Object?> get props => [keyword, value];
 }
 
 /// {@template ntm.ast.var_statement}
@@ -359,7 +381,7 @@ class ReturnStatement extends Statement {
 /// var c;
 /// ```
 /// {@endtemplate}
-class VarStatement extends Statement {
+class VarStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.var_statement}
   const VarStatement({
     required this.name,
@@ -394,6 +416,9 @@ class VarStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitVarStatement(this);
   }
+
+  @override
+  List<Object?> get props => [name, initializer];
 }
 
 /// {@template ntm.ast.while_statement}
@@ -405,7 +430,7 @@ class VarStatement extends Statement {
 /// }
 /// ```
 /// {@endtemplate}
-class WhileStatement extends Statement {
+class WhileStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.while_statement}
   const WhileStatement({
     required this.condition,
@@ -436,4 +461,7 @@ class WhileStatement extends Statement {
   T accept<T>(StatementVisitor<T> visitor) {
     return visitor.visitWhileStatement(this);
   }
+
+  @override
+  List<Object?> get props => [condition, body];
 }

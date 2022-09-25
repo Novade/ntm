@@ -23,4 +23,13 @@ class ScanResult with EquatableMixin {
 
   @override
   List<Object?> get props => [tokens, errors];
+
+  @override
+  String toString() {
+    return '''
+ScanResult(
+  tokens: $tokens,
+  errors: $errors,
+)''';
+  }
 }
