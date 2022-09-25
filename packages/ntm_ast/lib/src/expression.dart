@@ -1,3 +1,4 @@
+import 'package:equatable/equatable.dart';
 import 'package:ntm_core/ntm_core.dart';
 
 /// A visitor that can visit an expression.
@@ -58,7 +59,7 @@ abstract class Expression {
 /// a = b
 /// ```
 /// {@endtemplate}
-class AssignExpression extends Expression {
+class AssignExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.assign_expression}
   const AssignExpression({
     required this.name,
@@ -87,6 +88,9 @@ class AssignExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitAssignExpression(this);
   }
+
+  @override
+  List<Object?> get props => [name];
 }
 
 /// {@template ntm.ast.binary_expression}
@@ -96,7 +100,7 @@ class AssignExpression extends Expression {
 /// a + b
 /// ```
 /// {@endtemplate}
-class BinaryExpression extends Expression {
+class BinaryExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.binary_expression}
   const BinaryExpression({
     required this.left,
@@ -135,6 +139,9 @@ class BinaryExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitBinaryExpression(this);
   }
+
+  @override
+  List<Object?> get props => [operator, left, right];
 }
 
 /// {@template ntm.ast.call_expression}
@@ -144,7 +151,7 @@ class BinaryExpression extends Expression {
 /// f(p1, p2)
 /// ```
 /// {@endtemplate}
-class CallExpression extends Expression {
+class CallExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.call_expression}
   const CallExpression({
     required this.callee,
@@ -178,6 +185,9 @@ class CallExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitCallExpression(this);
   }
+
+  @override
+  List<Object?> get props => [callee, closingParenthesis, arguments];
 }
 
 /// {@template ntm.ast.get_expression}
@@ -187,7 +197,7 @@ class CallExpression extends Expression {
 /// a.b
 /// ```
 /// {@endtemplate}
-class GetExpression extends Expression {
+class GetExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.get_expression}
   const GetExpression({
     required this.object,
@@ -216,6 +226,9 @@ class GetExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitGetExpression(this);
   }
+
+  @override
+  List<Object?> get props => [object, name];
 }
 
 /// {@template ntm.ast.grouping_expression}
@@ -225,7 +238,7 @@ class GetExpression extends Expression {
 /// (a + b)
 /// ```
 /// {@endtemplate}
-class GroupingExpression extends Expression {
+class GroupingExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.grouping_expression}
   const GroupingExpression({
     required this.expression,
@@ -244,6 +257,9 @@ class GroupingExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitGroupingExpression(this);
   }
+
+  @override
+  List<Object?> get props => [expression];
 }
 
 /// {@template ntm.ast.literal_expression}
@@ -254,7 +270,7 @@ class GroupingExpression extends Expression {
 /// 1
 /// ```
 /// {@endtemplate}
-class LiteralExpression extends Expression {
+class LiteralExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.literal_expression}
   const LiteralExpression({
     required this.value,
@@ -272,6 +288,9 @@ class LiteralExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLiteralExpression(this);
   }
+
+  @override
+  List<Object?> get props => [value];
 }
 
 /// {@template ntm.ast.logical_expression}
@@ -281,7 +300,7 @@ class LiteralExpression extends Expression {
 /// a || b
 /// ```
 /// {@endtemplate}
-class LogicalExpression extends Expression {
+class LogicalExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.logical_expression}
   const LogicalExpression({
     required this.left,
@@ -322,6 +341,9 @@ class LogicalExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitLogicalExpression(this);
   }
+
+  @override
+  List<Object?> get props => [operator, left, right];
 }
 
 /// {@template ntm.ast.set_expression}
@@ -331,7 +353,7 @@ class LogicalExpression extends Expression {
 /// a.b = c
 /// ```
 /// {@endtemplate}
-class SetExpression extends Expression {
+class SetExpression extends Expression with EquatableMixin {
   const SetExpression({
     required this.object,
     required this.name,
@@ -369,6 +391,9 @@ class SetExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitSetExpression(this);
   }
+
+  @override
+  List<Object?> get props => [object, name, value];
 }
 
 /// {@template ntm.ast.super_expression}
@@ -378,7 +403,7 @@ class SetExpression extends Expression {
 /// super.a
 /// ```
 /// {@endtemplate}
-class SuperExpression extends Expression {
+class SuperExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.super_expression}
   const SuperExpression({
     required this.keyword,
@@ -401,6 +426,9 @@ class SuperExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitSuperExpression(this);
   }
+
+  @override
+  List<Object?> get props => [keyword, method];
 }
 
 /// {@template ntm.ast.this_expression}
@@ -410,7 +438,7 @@ class SuperExpression extends Expression {
 /// this
 /// ```
 /// {@endtemplate}
-class ThisExpression extends Expression {
+class ThisExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.this_expression}
   const ThisExpression({
     required this.keyword,
@@ -423,6 +451,9 @@ class ThisExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitThisExpression(this);
   }
+
+  @override
+  List<Object?> get props => [keyword];
 }
 
 /// {@template ntm.ast.unary_expression}
@@ -432,7 +463,7 @@ class ThisExpression extends Expression {
 /// !a
 /// ```
 /// {@endtemplate}
-class UnaryExpression extends Expression {
+class UnaryExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.unary_expression}
   const UnaryExpression({
     required this.right,
@@ -460,6 +491,9 @@ class UnaryExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitUnaryExpression(this);
   }
+
+  @override
+  List<Object?> get props => [operator, right];
 }
 
 /// {@template ntm.ast.variable.expression}
@@ -469,7 +503,7 @@ class UnaryExpression extends Expression {
 /// var a
 /// ```
 /// {@endtemplate}
-class VariableExpression extends Expression {
+class VariableExpression extends Expression with EquatableMixin {
   /// {@macro ntm.ast.variable.expression}
   const VariableExpression(
     this.name,
@@ -488,4 +522,7 @@ class VariableExpression extends Expression {
   T accept<T>(ExpressionVisitor<T> visitor) {
     return visitor.visitVariableExpression(this);
   }
+
+  @override
+  List<Object?> get props => [name];
 }
