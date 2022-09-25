@@ -1,10 +1,13 @@
 import 'package:ntm_ast/ntm_ast.dart';
 import 'package:ntm_core/ntm_core.dart';
 
+import 'parse_error.dart';
+import 'parse_result.dart';
+
 /// {@template ntm.parser}
 /// Has 2 jobs
-/// - Given a valid sequence of [tokens], produce a corresponding syntax tree.
-/// - Given an *invalid* sequence of [tokens], detect any errors and tell the
+/// - Given a valid sequence of [tokens], produces a corresponding syntax tree.
+/// - Given an *invalid* sequence of [tokens], detects any errors and tell the
 ///   user about their mistakes.
 /// {@endtemplate}
 class Parser {
@@ -12,11 +15,18 @@ class Parser {
   Parser({
     required this.tokens,
   });
+
+  /// The list of tokens to parse.
   final List<Token> tokens;
+
+  /// The parse errors.
   final List<ParseError> _errors = [];
 
+  /// The current token being processed.
   var _current = 0;
 
+  /// Parses the list of [tokens] and returns the list of [Statement]s and
+  /// [ParseError]s.
   ParseResult parse() {
     _errors.clear();
     final statements = <Statement>[];
@@ -381,6 +391,9 @@ class Parser {
     );
   }
 
+  /// ```
+  /// varDeclaration -> 'var' IDENTIFIER ( '=' expression )? ';' ;
+  /// ```
   Statement _varDeclaration() {
     final name = _consume(TokenType.identifier, 'Expect a variable name.');
 
@@ -412,6 +425,9 @@ class Parser {
     );
   }
 
+  /// ```
+  /// equality -> comparison ( ( '!=' | '==' ) comparison )* ;
+  /// ```
   Expression _equality() {
     var expression = _comparison();
     while (_match(const [TokenType.bangEqual, TokenType.equalEqual])) {
@@ -426,6 +442,9 @@ class Parser {
     return expression;
   }
 
+  /// ```
+  /// comparison -> term ( ( '>' | '>=' | '<' | '<=' ) term )* ;
+  /// ```
   Expression _comparison() {
     var expression = _term();
     while (_match(const [
@@ -445,6 +464,9 @@ class Parser {
     return expression;
   }
 
+  /// ```
+  /// term -> factor ( ( '-' | '+' ) factor )* ;
+  /// ```
   Expression _term() {
     var expression = _factor();
     while (_match(const [TokenType.minus, TokenType.plus])) {
@@ -459,6 +481,9 @@ class Parser {
     return expression;
   }
 
+  /// ```
+  /// factor -> unary ( ( '/' | '*' ) unary )* ;
+  /// ```
   Expression _factor() {
     var expression = _unary();
     if (_match(const [TokenType.slash, TokenType.star])) {
@@ -659,37 +684,6 @@ class Parser {
           _advance();
       }
     }
-  }
-}
-
-class ParseResult {
-  const ParseResult({
-    this.statements = const [],
-    this.errors = const [],
-  });
-
-  final List<Statement> statements;
-  final List<ParseError> errors;
-}
-
-class ParseError extends DescribableError {
-  const ParseError({
-    required this.token,
-    required this.message,
-  });
-
-  final Token token;
-  final String message;
-
-  @override
-  String describe() {
-    final String where;
-    if (token.type == TokenType.eof) {
-      where = 'at end';
-    } else {
-      where = 'at "${token.lexeme}"';
-    }
-    return '[line ${token.line}:${token.column}] Error $where: $message';
   }
 }
 
