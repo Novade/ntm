@@ -1,5 +1,5 @@
 name: ntm_scanner
-description: A starting point for Dart libraries or applications.
+description: A scanner that scans a ntm text file and returns the list of ntm tokens.
 version: 0.0.0
 publish_to: none
 
@@ -7,6 +7,7 @@ environment:
   sdk: ">=2.17.6 <3.0.0"
 
 dependencies:
+  equatable: ^2.0.5
   ntm_ast:
     path: ../ntm_ast
   ntm_core:

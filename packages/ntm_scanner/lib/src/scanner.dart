@@ -1,41 +1,56 @@
 import 'package:ntm_core/ntm_core.dart';
+import 'package:ntm_scanner/src/scan_result.dart';
 
 import 'scanner_error.dart';
 
+/// {@template ntm.scanner}
 /// Stores the raw source code as a simple string, walks through it and
 /// constructs [_tokens] until it runs out of characters. Then it appends on
-/// final "end of file" token.
+/// final "end of file" ([TokenType.eof]) token.
+/// {@endtemplate}
 class Scanner {
+  /// {@macro ntm.scanner}
   Scanner({
     required this.source,
   });
 
+  /// The source file to scan.
   final String source;
+
+  /// The list of scanned token.
   final List<Token> _tokens = [];
+
+  /// The list of errors.
   final List<ScannerError> _errors = [];
 
+  /// The index of the start of the current token being parsed.
   var _start = 0;
+
+  /// The current [source]'s index being scanned.
   var _current = 0;
 
   /// The current line so the produced tokens know their location.
   var __line = 1;
 
-  /// Comment
+  /// The current line so the produced tokens know their location.
   int get _line => __line;
   set _line(int line) {
     __line = line;
     _startCurrentLine = _current + 1;
   }
 
+  /// The [source]'s index of the start of the current line.
   var _startCurrentLine = 0;
 
   /// The current column so the produced tokens know their location.
   int get _column => _current - _startCurrentLine + 1;
 
+  /// `true` if we have reached the end of the file.
   bool get _isAtEnd {
     return _current >= source.length;
   }
 
+  /// Scan the given [source] and returns a list of [Token]s and [ScannerError].
   ScanResult scanTokens() {
     _tokens.clear();
     _errors.clear();
@@ -264,7 +279,7 @@ class Scanner {
       }
     }
     final text = source.substring(_start, _current);
-    final value = double.tryParse(text);
+    final value = num.tryParse(text);
     if (value == null) {
       _addError('Invalid number.');
       return;
@@ -301,14 +316,4 @@ class Scanner {
     assert(character.length == 1);
     return _isAlpha(character) || _isDigit(character);
   }
-}
-
-class ScanResult {
-  const ScanResult({
-    this.tokens = const [],
-    this.errors = const [],
-  });
-
-  final List<Token> tokens;
-  final List<ScannerError> errors;
 }

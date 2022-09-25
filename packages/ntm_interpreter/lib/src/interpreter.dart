@@ -35,27 +35,27 @@ class Interpreter
     switch (expression.operator.type) {
       case TokenType.greater:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) > (right as double);
+        return (left as num) > (right as num);
       case TokenType.greaterEqual:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) >= (right as double);
+        return (left as num) >= (right as num);
       case TokenType.less:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) < (right as double);
+        return (left as num) < (right as num);
       case TokenType.lessEqual:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) <= (right as double);
+        return (left as num) <= (right as num);
       case TokenType.minus:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) - (right as double);
+        return (left as num) - (right as num);
       case TokenType.slash:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) / (right as double);
+        return (left as num) / (right as num);
       case TokenType.star:
         _checkNumberOperands(expression.operator, left, right);
-        return (left as double) * (right as double);
+        return (left as num) * (right as num);
       case TokenType.plus:
-        if (left is double && right is double) {
+        if (left is num && right is num) {
           return left + right;
         } else if (left is String && right is String) {
           return '$left$right';
@@ -187,7 +187,7 @@ class Interpreter
         return !_isTruthy(right);
       case TokenType.minus:
         _checkNumberOperand(expression.operator, right);
-        return -(right as double);
+        return -(right as num);
       default:
         // Unreachable.
         return null;
@@ -195,12 +195,12 @@ class Interpreter
   }
 
   void _checkNumberOperand(Token operator, Object? operand) {
-    if (operand is double) return;
+    if (operand is num) return;
     throw RuntimeError(token: operator, message: 'Operand must be a number.');
   }
 
   void _checkNumberOperands(Token operator, Object? left, Object? right) {
-    if (left is double && right is double) return;
+    if (left is num && right is num) return;
     throw RuntimeError(token: operator, message: 'Operands must be numbers.');
   }
 
