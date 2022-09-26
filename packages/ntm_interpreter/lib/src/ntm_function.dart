@@ -8,15 +8,23 @@ import 'return_exception.dart';
 
 // TODO: Allow anonymous functions
 // https://www.craftinginterpreters.com/functions.html#challenges
+
+/// A function in the Ntm language.
 class NtmFunction implements Callable {
+  /// A function in the Ntm language.
   const NtmFunction({
     required this.declaration,
     required this.closure,
     required this.isInitializer,
   });
 
+  /// The declaration of the function.
   final FunctionStatement declaration;
+
+  /// The closure of the function when it was created.
   final Environment closure;
+
+  /// `true` if the function is an initializer of a class.
   final bool isInitializer;
 
   @override
@@ -46,6 +54,7 @@ class NtmFunction implements Callable {
     return null;
   }
 
+  /// Binds the function to the given [instance].
   NtmFunction bind(NtmInstance instance) {
     final environment = Environment(enclosing: closure);
     environment.define('this', instance);

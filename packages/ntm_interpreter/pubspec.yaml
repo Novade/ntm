@@ -1,5 +1,5 @@
 name: ntm_interpreter
-description: A starting point for Dart libraries or applications.
+description: A ntm interpreter that interprets a ntm ast.
 version: 0.0.0
 publish_to: none
 

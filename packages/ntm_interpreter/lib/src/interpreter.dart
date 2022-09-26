@@ -12,16 +12,21 @@ import 'ntm_class.dart';
 import 'ntm_function.dart';
 import 'ntm_instance.dart';
 
+/// {@template ntm.interpreter}
 /// Unlike expressions, statements produce no values, so the return type of the
 /// visit methods is `void`, not [Object?].
+/// {@endtemplate}
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
+  /// {@macro ntm.interpreter}
   Interpreter() {
     globals.define('clock', const Clock());
   }
 
+  /// The runtime errors.
   final errors = <RuntimeError>[];
 
+  /// The global environment.
   final globals = Environment();
   late var _environment = globals;
 

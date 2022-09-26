@@ -1,5 +1,6 @@
 import 'package:ntm_ast/ntm_ast.dart';
 import 'package:ntm_core/ntm_core.dart';
+import 'package:ntm_interpreter/src/resolver_error.dart';
 
 import 'interpreter.dart';
 
@@ -28,9 +29,13 @@ enum _ClassType {
   subClass,
 }
 
+/// A resolver.
 class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
+  /// A resolver.
   Resolver(this.interpreter);
 
+  /// The interpreter
+  // TODO: Unlink the resolver and the interpreter.
   final Interpreter interpreter;
 
   /// Lexical scopes nest in both the interpreter and the resolver. They behave
@@ -426,19 +431,5 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
   void visitWhileStatement(WhileStatement statement) {
     _resolveExpression(statement.condition);
     _resolveStatement(statement.body);
-  }
-}
-
-class ResolverError extends DescribableError {
-  const ResolverError({
-    required this.token,
-    required this.message,
-  });
-  final Token token;
-  final String message;
-
-  @override
-  String describe() {
-    return '[${token.line}:${token.column}] $message';
   }
 }

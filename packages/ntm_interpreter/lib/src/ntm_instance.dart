@@ -3,11 +3,16 @@ import 'package:ntm_core/ntm_core.dart';
 import 'ntm_class.dart';
 import 'runtime_error.dart';
 
+/// A class instance in the Ntm language.
 class NtmInstance implements Describable {
+  /// A class instance in the Ntm language.
   NtmInstance(this.ntmClass);
 
+  /// The class of the instance.
   final NtmClass ntmClass;
   final _fields = <String, Object?>{};
+
+  /// Gets the value of the field.
   Object? get(Token name) {
     // When looking up a property on an instance, if we don’t find a matching
     // field, we look for a method with that name on the instance’s class. If
@@ -34,6 +39,7 @@ class NtmInstance implements Describable {
     );
   }
 
+  /// Sets the field of the instance.
   void set(Token name, Object? value) {
     _fields[name.lexeme] = value;
   }

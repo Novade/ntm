@@ -1,17 +1,17 @@
 import 'package:ntm_core/ntm_core.dart';
 
-/// A runtime error raised by the interpreter.
-class RuntimeError implements DescribableError {
-  /// A runtime error raised by the interpreter.
-  const RuntimeError({
+/// An error raised by the resolver.
+class ResolverError extends DescribableError {
+  /// An error raised by the resolver.
+  const ResolverError({
     required this.token,
     required this.message,
   });
 
-  /// The token.
+  /// The token of the error.
   final Token token;
 
-  /// The error message.
+  /// The message of the error.
   final String message;
 
   @override

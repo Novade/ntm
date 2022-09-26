@@ -3,7 +3,9 @@ import 'interpreter.dart';
 
 // TODO: Make print a native method.
 
+/// A native method that returns the milliseconds since epoch.
 class Clock extends Callable {
+  /// A native method that returns the milliseconds since epoch.
   const Clock();
   @override
   int get arity => 0;
