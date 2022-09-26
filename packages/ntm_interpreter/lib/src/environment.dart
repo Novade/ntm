@@ -9,7 +9,9 @@ class _Undefined {
 
 const _undefined = _Undefined();
 
+/// The environment in which a code is executed.
 class Environment {
+  /// The environment in which a code is executed.
   Environment({
     this.enclosing,
   });
@@ -29,6 +31,7 @@ class Environment {
     _values[name] = _undefined;
   }
 
+  /// Gets the value of the variable.
   Object? get(Token name) {
     if (_values.containsKey(name.lexeme)) {
       final value = _values[name.lexeme];
@@ -50,10 +53,13 @@ class Environment {
     );
   }
 
+  /// Get the value of a variable in the environment of the given [distance].
   Object? getAt(int distance, Token name) {
     return _ancestor(distance).get(name);
   }
 
+  /// Get the value of a variable from its [lexeme] in the environment of the
+  /// given [distance].
   Object? getLexemeAt(int distance, String lexeme) {
     return _ancestor(distance)._values[lexeme];
   }
@@ -66,6 +72,7 @@ class Environment {
     return environment;
   }
 
+  /// Assign a value to a variable in the current environment.
   void assign(Token name, Object? value) {
     if (_values.containsKey(name.lexeme)) {
       _values[name.lexeme] = value;
@@ -80,6 +87,7 @@ class Environment {
     );
   }
 
+  /// Assign a value to a variable in an environment at a given [distance].
   void assignAt(int distance, Token name, Object? value) {
     _ancestor(distance).assign(name, value);
   }

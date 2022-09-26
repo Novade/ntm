@@ -9,15 +9,22 @@ import 'ntm_instance.dart';
 // https://www.craftinginterpreters.com/classes.html#challenges (`NtmClass`
 // could extends `NtmInstance`).
 
+/// A class in the Ntm language.
 class NtmClass implements Describable, Callable {
+  /// A class in the Ntm language.
   const NtmClass({
     required this.name,
     required this.methods,
     this.superclass,
   });
 
+  /// The name of the class
   final String name;
+
+  /// The methods of the class.
   final Map<String, NtmFunction> methods;
+
+  /// The super class.
   final NtmClass? superclass;
 
   @override
@@ -30,6 +37,7 @@ class NtmClass implements Describable, Callable {
     return initializer?.arity ?? 0;
   }
 
+  /// Finds the method with the given [name].
   NtmFunction? findMethod(String name) {
     if (methods.containsKey(name)) {
       return methods[name]!;
