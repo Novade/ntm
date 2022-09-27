@@ -1,5 +1,5 @@
 name: ntm_cli
-description: A starting point for Dart libraries or applications.
+description: A command line tool to interpret ntm code.
 version: 0.0.0
 publish_to: none
 
