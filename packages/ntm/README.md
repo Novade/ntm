@@ -1,4 +1,4 @@
 ## Ntm
 
+A library that parses and interprets ntm text files.
 
-This is inspired by [Crafting interpreter](https://www.craftinginterpreters.com/index.html).

@@ -1,5 +1,5 @@
 name: ntm
-description: A starting point for Dart libraries or applications.
+description: A library that parses and interprets ntm text files.
 version: 0.0.0
 publish_to: none
 

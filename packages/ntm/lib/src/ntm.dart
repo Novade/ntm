@@ -4,11 +4,17 @@ import 'package:ntm_interpreter/ntm_interpreter.dart';
 import 'package:ntm_parser/ntm_parser.dart';
 import 'package:ntm_scanner/ntm_scanner.dart';
 
+/// {@template ntm}
+/// A class able to parse and interpret a ntm text script.
+///
+/// {@endtemplate}
 class Ntm {
+  /// {@template ntm}
   Ntm();
 
   final interpreter = Interpreter();
 
+  /// Runs the given ntm [script].
   void run(String script) {
     interpreter.errors.clear();
     final scanner = Scanner(source: script);
