@@ -17,3 +17,10 @@ scripts:
   test:
     exec: dart test .
     description: Run `dart test` in all packages.
+  test-coverage:
+    exec: dart test --coverage=coverage .
+    description: Run `dart test` in all packages.
+  # cSpell:ignore lcov
+  format-coverage:
+    exec: format_coverage --lcov --in=coverage --out=coverage/coverage.lcov --packages=.dart_tool/package_config.json --report-on=lib
+    description: Run `dart test` in all packages.

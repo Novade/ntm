@@ -16,7 +16,13 @@ jobs:
       - run: melos bootstrap
       - run: melos run format
       - run: melos run analyze
-      - run: melos run test
+      - run: dart pub global activate coverage
+      - run: melos run test-coverage
+      - run: melos run format-coverage
+      - name: Upload coverage reports to Codecov with GitHub Action
+        uses: codecov/codecov-action@v2
+        with:
+          flags: ntm,ntm_ast,ntm_cli,ntm_core,ntm_interpreter,ntm_parser,ntm_scanner
   spelling:
     # Verifies there is no spelling errors in the code.
     runs-on: ubuntu-latest
