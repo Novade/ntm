@@ -1,5 +1,5 @@
 [![melos](https://img.shields.io/badge/maintained%20with-melos-f700ff.svg?style=flat-square)](https://github.com/invertase/melos)
-[![codecov](https://codecov.io/gh/ValentinVignal/ntm/branch/main/graph/badge.svg?token=2yJsLw1Nf2)](https://codecov.io/gh/ValentinVignal/ntm)
+[![codecov](https://codecov.io/gh/Novade/ntm/branch/main/graph/badge.svg?token=AN7LXH4XZC)](https://codecov.io/gh/Novade/ntm)
 
 # Ntm
 
