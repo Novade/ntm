@@ -24,15 +24,21 @@ class NtmInstance implements Describable {
     // Looking for a field first implies that fields shadow methods, a subtle
     // but important semantic point.
 
-    if (_fields.containsKey(name.lexeme)) {
-      return _fields[name.lexeme];
+    if (ntmClass.hasField(name.lexeme)) {
+      if (_fields.containsKey(name.lexeme)) {
+        return _fields[name.lexeme];
+      } else {
+        throw RuntimeError(
+          token: name,
+          message: 'The field "${name.lexeme}" is not initialized.',
+        );
+      }
     }
 
     // TODO: Disallow method shadowing ?
     final method = ntmClass.findMethod(name.lexeme);
     if (method != null) return method.bind(this);
 
-    // TODO: Add fields to class.
     throw RuntimeError(
       token: name,
       message: 'Undefined property "${name.lexeme}".',

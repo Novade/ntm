@@ -1,3 +1,4 @@
+import 'package:ntm_ast/ntm_ast.dart';
 import 'package:ntm_core/ntm_core.dart';
 
 import 'callable.dart';
@@ -5,16 +6,17 @@ import 'interpreter.dart';
 import 'ntm_function.dart';
 import 'ntm_instance.dart';
 
-// TODO: Add support to static method, fields
+// TODO: Add support to static method
 // https://www.craftinginterpreters.com/classes.html#challenges (`NtmClass`
 // could extends `NtmInstance`).
 
-/// A class in the Ntm language.
+/// A class in the Ntm language.x
 class NtmClass implements Describable, Callable {
   /// A class in the Ntm language.
   const NtmClass({
     required this.name,
     required this.methods,
+    required this.fields,
     this.superclass,
   });
 
@@ -23,6 +25,9 @@ class NtmClass implements Describable, Callable {
 
   /// The methods of the class.
   final Map<String, NtmFunction> methods;
+
+  /// The fields of the class.
+  final Map<String, VarStatement> fields;
 
   /// The super class.
   final NtmClass? superclass;
@@ -45,9 +50,30 @@ class NtmClass implements Describable, Callable {
     return superclass?.findMethod(name);
   }
 
+  /// Returns `true` if the class contains a field with the given [name].
+  bool hasField(String name) {
+    if (fields.containsKey(name)) {
+      return true;
+    }
+    return superclass?.hasField(name) ?? false;
+  }
+
+  void _initFields(NtmInstance instance, Interpreter interpreter) {
+    superclass?._initFields(instance, interpreter);
+    for (final fieldInitializer in fields.values) {
+      if (fieldInitializer.initializer != null) {
+        final value = interpreter.evaluate(
+          fieldInitializer.initializer!,
+        );
+        instance.set(fieldInitializer.name, value);
+      }
+    }
+  }
+
   @override
   Object? call(Interpreter interpreter, Iterable<Object?> arguments) {
     final instance = NtmInstance(this);
+    _initFields(instance, interpreter);
     // When a class is called, after the LoxInstance is created, we look for an
     // “init” method. If we find one, we immediately bind and invoke it just
     // like a normal method call. The argument list is forwarded along.

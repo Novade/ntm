@@ -89,15 +89,17 @@ class BlockStatement extends Statement with EquatableMixin {
 /// class A < B {
 ///   a() {}
 ///   b() {}
+///   var c;
+///   var d;
 /// }
 /// ```
 /// {@endtemplate}
-// TODO: Add fields.
 class ClassStatement extends Statement with EquatableMixin {
   /// {@macro ntm.ast.class_statement}
   const ClassStatement({
     required this.name,
     required this.methods,
+    required this.fields,
     this.superclass,
   });
 
@@ -121,6 +123,18 @@ class ClassStatement extends Statement with EquatableMixin {
   /// }
   /// ```
   final List<FunctionStatement> methods;
+
+  /// The list fields.
+  ///
+  /// `['a', 'b']` in the example
+  ///
+  /// ```ntm
+  /// class A {
+  ///   var a;
+  ///   var b;
+  /// }
+  /// ```
+  final List<VarStatement> fields;
 
   /// The super class, if any.
   ///

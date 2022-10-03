@@ -74,7 +74,7 @@ class Parser {
 
   /// ```
   /// classDeclaration -> 'class' IDENTIFIER ( '<' IDENTIFIER )?
-  ///                     '{' function* '}; ;
+  ///                     '{' ( varDeclaration |function )* '}' ;
   /// ```
   Statement _classDeclaration() {
     final name = _consume(TokenType.identifier, 'Expect class name.');
@@ -90,8 +90,13 @@ class Parser {
     _consume(TokenType.leftBrace, 'Expect "{" before class body.');
 
     final methods = <FunctionStatement>[];
+    final fields = <VarStatement>[];
     while (!_check(TokenType.rightBrace) && !_isAtEnd) {
-      methods.add(_function(_FunctionType.method));
+      if (_match(const [TokenType.varKeyword])) {
+        fields.add(_varDeclaration());
+      } else {
+        methods.add(_function(_FunctionType.method));
+      }
     }
 
     _consume(TokenType.rightBrace, 'Expect "}" after class body.');
@@ -99,6 +104,7 @@ class Parser {
       name: name,
       methods: methods,
       superclass: superclass,
+      fields: fields,
     );
   }
 
@@ -394,7 +400,7 @@ class Parser {
   /// ```
   /// varDeclaration -> 'var' IDENTIFIER ( '=' expression )? ';' ;
   /// ```
-  Statement _varDeclaration() {
+  VarStatement _varDeclaration() {
     final name = _consume(TokenType.identifier, 'Expect a variable name.');
 
     final Expression? initializer;
