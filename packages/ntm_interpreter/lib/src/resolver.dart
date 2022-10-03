@@ -247,7 +247,6 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitGetExpression(GetExpression expression) {
-    // TODO: Add fields to class.
     _resolveExpression(expression.object);
   }
 
@@ -313,7 +312,6 @@ class Resolver implements ExpressionVisitor<void>, StatementVisitor<void> {
 
   @override
   void visitSetExpression(SetExpression expression) {
-    // TODO: Add fields to class.
     _resolveExpression(expression.value);
     _resolveExpression(expression.object);
   }

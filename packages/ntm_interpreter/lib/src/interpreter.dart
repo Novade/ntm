@@ -35,8 +35,8 @@ class Interpreter
 
   @override
   Object? visitBinaryExpression(BinaryExpression expression) {
-    final left = _evaluate(expression.left);
-    final right = _evaluate(expression.right);
+    final left = evaluate(expression.left);
+    final right = evaluate(expression.right);
     switch (expression.operator.type) {
       case TokenType.greater:
         _checkNumberOperands(expression.operator, left, right);
@@ -81,9 +81,9 @@ class Interpreter
 
   @override
   Object? visitCallExpression(CallExpression expression) {
-    final callee = _evaluate(expression.callee);
+    final callee = evaluate(expression.callee);
 
-    final arguments = expression.arguments.map(_evaluate);
+    final arguments = expression.arguments.map(evaluate);
 
     if (callee is! Callable) {
       throw RuntimeError(
@@ -105,7 +105,7 @@ class Interpreter
 
   @override
   Object? visitGetExpression(GetExpression expression) {
-    final object = _evaluate(expression.object);
+    final object = evaluate(expression.object);
     if (object is NtmInstance) {
       return object.get(expression.name);
     }
@@ -117,7 +117,7 @@ class Interpreter
 
   @override
   Object? visitGroupingExpression(GroupingExpression expression) {
-    return _evaluate(expression.expression);
+    return evaluate(expression.expression);
   }
 
   @override
@@ -127,19 +127,19 @@ class Interpreter
 
   @override
   Object? visitLogicalExpression(LogicalExpression expression) {
-    final left = _evaluate(expression.left);
+    final left = evaluate(expression.left);
 
     if (expression.operator.type == TokenType.pipePipe) {
       if (_isTruthy(left)) return left;
     } else {
       if (!_isTruthy(left)) return left;
     }
-    return _evaluate(expression.right);
+    return evaluate(expression.right);
   }
 
   @override
   Object? visitSetExpression(SetExpression expression) {
-    final object = _evaluate(expression.object);
+    final object = evaluate(expression.object);
 
     if (object is! NtmInstance) {
       throw RuntimeError(
@@ -148,7 +148,7 @@ class Interpreter
       );
     }
 
-    final value = _evaluate(expression.value);
+    final value = evaluate(expression.value);
     object.set(expression.name, value);
     return value;
   }
@@ -186,7 +186,7 @@ class Interpreter
 
   @override
   Object? visitUnaryExpression(UnaryExpression expression) {
-    final right = _evaluate(expression.right);
+    final right = evaluate(expression.right);
     switch (expression.operator.type) {
       case TokenType.bang:
         return !_isTruthy(right);
@@ -215,9 +215,8 @@ class Interpreter
     return true;
   }
 
-  /// Helper method which simply sends the expression back into the
-  /// interpreter’s visitor implementation.
-  Object? _evaluate(Expression expression) {
+  /// Evaluates an expression and returns its value.
+  Object? evaluate(Expression expression) {
     return expression.accept(this);
   }
 
@@ -250,7 +249,7 @@ class Interpreter
   void visitClassStatement(ClassStatement statement) {
     final Object? superclass;
     if (statement.superclass != null) {
-      final potentialSuperClass = _evaluate(statement.superclass!);
+      final potentialSuperClass = evaluate(statement.superclass!);
       if (potentialSuperClass is! NtmClass) {
         errors.add(RuntimeError(
           token: statement.superclass!.name,
@@ -272,6 +271,12 @@ class Interpreter
       _environment.define('super', superclass);
     }
 
+    final fields = Map.fromEntries(statement.fields.map((field) {
+      return MapEntry(
+        field.name.lexeme,
+        field,
+      );
+    }));
     final methods = Map.fromEntries(statement.methods.map((method) {
       return MapEntry(
         method.name.lexeme,
@@ -285,6 +290,7 @@ class Interpreter
     final ntmClass = NtmClass(
       name: statement.name.lexeme,
       methods: methods,
+      fields: fields,
       superclass: superclass as NtmClass?,
     );
     if (superclass != null) {
@@ -295,7 +301,7 @@ class Interpreter
 
   @override
   void visitExpressionStatement(ExpressionStatement statement) {
-    _evaluate(statement.expression);
+    evaluate(statement.expression);
   }
 
   @override
@@ -310,7 +316,7 @@ class Interpreter
 
   @override
   void visitIfStatement(IfStatement statement) {
-    if (_isTruthy(_evaluate(statement.condition))) {
+    if (_isTruthy(evaluate(statement.condition))) {
       _execute(statement.thenBranch);
     } else if (statement.elseBranch != null) {
       _execute(statement.elseBranch!);
@@ -319,7 +325,7 @@ class Interpreter
 
   @override
   void visitPrintStatement(PrintStatement statement) {
-    final value = _evaluate(statement.expression);
+    final value = evaluate(statement.expression);
     if (value is Describable) {
       stdout.writeln(value.describe());
     } else {
@@ -331,7 +337,7 @@ class Interpreter
   void visitReturnStatement(ReturnStatement statement) {
     late final Object? value;
     if (statement.value != null) {
-      value = _evaluate(statement.value!);
+      value = evaluate(statement.value!);
     } else {
       value = null;
     }
@@ -351,7 +357,7 @@ class Interpreter
   @override
   void visitVarStatement(VarStatement statement) {
     if (statement.initializer != null) {
-      final value = _evaluate(statement.initializer!);
+      final value = evaluate(statement.initializer!);
       _environment.define(
         statement.name.lexeme,
         value,
@@ -363,7 +369,7 @@ class Interpreter
 
   @override
   void visitWhileStatement(WhileStatement statement) {
-    while (_isTruthy(_evaluate(statement.condition))) {
+    while (_isTruthy(evaluate(statement.condition))) {
       _execute(statement.body);
     }
   }
@@ -393,7 +399,7 @@ class Interpreter
 
   @override
   Object? visitAssignExpression(AssignExpression expression) {
-    final value = _evaluate(expression.value);
+    final value = evaluate(expression.value);
     final distance = _locals[expression];
     if (distance != null) {
       _environment.assignAt(distance, expression.name, value);
