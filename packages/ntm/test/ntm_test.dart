@@ -405,7 +405,9 @@ print myInstance;
         IOOverrides.runZoned(
           () {
             Ntm().run('''
-class MyClass {}
+class MyClass {
+  var myField;
+}
 var myInstance = MyClass();
 myInstance.myField = 'myValue';
 print myInstance.myField;
@@ -441,6 +443,121 @@ myInstance.myField;
           () => stderr.writeln('[3:18] Undefined property "myField".'),
         ).called(1);
       });
+
+      test(
+          'It should raise an error when a field that has not been initialized is accessed',
+          () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  var myField;
+}
+var myInstance = MyClass();
+myInstance.myField;
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verifyNever(() => stdout.writeln(any()));
+        verify(
+          () => stderr.writeln(
+            '[5:18] The field "myField" is not initialized.',
+          ),
+        ).called(1);
+      });
+
+      test('It should initialize a field with an initializer', () {
+        final stdout = _MockStdout();
+        final stderr = _MockStdout();
+        IOOverrides.runZoned(
+          () {
+            Ntm().run('''
+class MyClass {
+  var a;
+  var b = 2;
+}
+
+var instance = MyClass();
+print instance.b;
+''');
+          },
+          stdout: () => stdout,
+          stderr: () => stderr,
+        );
+
+        verify(() => stdout.writeln(2)).called(1);
+        verifyNever(() => stderr.writeln(any()));
+      });
+      test(
+        'It should initialize a field with an initializer when the instance is created',
+        () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('''
+var variable = 1;
+class MyClass {
+  var a = variable;
+}
+
+var instance = MyClass();
+print instance.a;
+variable = 2;
+instance = MyClass();
+print instance.a;
+''');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          final captured = verify(() => stdout.writeln(captureAny())).captured;
+          expect(captured, orderedEquals(const [1, 2]));
+          verifyNever(() => stderr.writeln(any()));
+        },
+      );
+      test(
+        'It should initialize a field with an initializer referring to the correct variable when the instance is created',
+        () {
+          final stdout = _MockStdout();
+          final stderr = _MockStdout();
+          IOOverrides.runZoned(
+            () {
+              Ntm().run('''
+var variable = 1;
+class MyClass {
+  var a = variable;
+}
+{
+  var instance = MyClass();
+  print instance.a;
+  variable = 2;
+  instance = MyClass();
+  print instance.a;
+  var variable = 3;
+  {
+    var variable = 4;
+    instance = MyClass();
+    print instance.a;
+  }
+}
+''');
+            },
+            stdout: () => stdout,
+            stderr: () => stderr,
+          );
+
+          final captured = verify(() => stdout.writeln(captureAny())).captured;
+          expect(captured, orderedEquals(const [1, 2, 2]));
+          verifyNever(() => stderr.writeln(any()));
+        },
+      );
     });
 
     group('Method', () {
@@ -473,12 +590,12 @@ MyClass().method();
           () {
             Ntm().run('''
 class MyClass {
+  var field = 'field';
   method() {
     print this.field + ' in method';
   }
 }
 var instance = MyClass();
-instance.field = 'field';
 instance.method();
 ''');
           },
@@ -516,6 +633,8 @@ instance.method();
           () {
             Ntm().run('''
 class MyClass {
+  var field0;
+  var field1;
   init(field1) {
     this.field0 = 'field0';
     this.field1 = field1;
