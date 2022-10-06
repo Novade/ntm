@@ -2,5 +2,8 @@
   "words": [
     "codecov",
     "pubspec"
+  ],
+  "ignorePaths": [
+    ".vscode/**"
   ]
 }
