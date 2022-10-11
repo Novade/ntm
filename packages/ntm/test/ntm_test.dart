@@ -1,48 +1,23 @@
-import 'dart:io';
-
-import 'package:mocktail/mocktail.dart';
 import 'package:ntm/ntm.dart';
+import 'package:ntm_core/ntm_core.dart';
 import 'package:test/test.dart';
-
-class _MockStdout extends Mock implements Stdout {}
 
 void main() {
   test('It should evaluate 1 == 1 to true', () {
-    final stdout = _MockStdout();
-    final stderr = _MockStdout();
-    IOOverrides.runZoned(
-      () {
-        Ntm().run('print 1 == 1;');
-      },
-      stdout: () => stdout,
-      stderr: () => stderr,
-    );
-
-    verify(() => stdout.writeln(true)).called(1);
-    verifyNever(() => stderr.writeln(any()));
+    final logger = AccumulatorLogger();
+    Ntm(logger: logger).run('print 1 == 1;');
+    expect(logger.logs, orderedEquals(const ['true']));
   });
   test('It should evaluate 1 != 1 to false', () {
-    final stdout = _MockStdout();
-    final stderr = _MockStdout();
-    IOOverrides.runZoned(
-      () {
-        Ntm().run('print 1 != 1;');
-      },
-      stdout: () => stdout,
-      stderr: () => stderr,
-    );
-
-    verify(() => stdout.writeln(false)).called(1);
-    verifyNever(() => stderr.writeln(any()));
+    final logger = AccumulatorLogger();
+    Ntm(logger: logger).run('print 1 != 1;');
+    expect(logger.logs, orderedEquals(const ['false']));
   });
 
   group('Scope', () {
     test('It should scope variables', () {
-      final stdout = _MockStdout();
-      final stderr = _MockStdout();
-      IOOverrides.runZoned(
-        () {
-          Ntm().run('''
+      final logger = AccumulatorLogger();
+      Ntm(logger: logger).run('''
 var a = 'global a';
 var b = 'global b';
 var c = 'global c';
@@ -63,24 +38,21 @@ print a;
 print b;
 print c;
 ''');
-        },
-        stdout: () => stdout,
-        stderr: () => stderr,
-      );
 
-      final stdoutCaptured =
-          verify(() => stdout.writeln(captureAny())).captured;
-      expect(stdoutCaptured.join('\n'), '''
-inner a
-outer b
-global c
-outer a
-outer b
-global c
-global a
-global b
-global c''');
-      verifyNever(() => stderr.writeln(any()));
+      expect(
+        logger.logs,
+        orderedEquals([
+          'inner a',
+          'outer b',
+          'global c',
+          'outer a',
+          'outer b',
+          'global c',
+          'global a',
+          'global b',
+          'global c',
+        ]),
+      );
     });
   });
 
@@ -88,25 +60,18 @@ global c''');
     test(
       'It should throw an error when a declared variable is being accessed without being assigned first',
       () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 var a;
 print a;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
 
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
-            '[2:7] The variable "a" was declared but never assigned.',
-          ),
-        ).called(1);
+        expect(
+          logger.logs,
+          orderedEquals(const [
+            '[2:7] The variable "a" was declared but never assigned.'
+          ]),
+        );
       },
     );
   });
@@ -114,11 +79,8 @@ print a;
   group('Control flow', () {
     group('if', () {
       test('it should evaluate the correct branch', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 if (true) {
   print 'then 1';
 } else {
@@ -131,21 +93,8 @@ if (false) {
   print 'else 2';
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
 
-        final stdoutCaptured = verify(
-          () => stdout.writeln(captureAny()),
-        ).captured;
-        expect(
-            stdoutCaptured,
-            orderedEquals(
-              ['then 1', 'else 2'],
-            ));
-
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['then 1', 'else 2']));
       });
     });
   });
@@ -154,33 +103,15 @@ if (false) {
     for (final left in const [true, false]) {
       for (final right in const [true, false]) {
         test('$left || $right should evaluate to ${left || right}', () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('print $left || $right;');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
-
-          verify(() => stdout.writeln(left || right)).called(1);
-          verifyNever(() => stderr.writeln(any()));
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('print $left || $right;');
+          expect(logger.logs, orderedEquals([(left || right).toString()]));
         });
 
         test('$left && $right should evaluate to ${left && right}', () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('print $left && $right;');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
-
-          verify(() => stdout.writeln(left && right)).called(1);
-          verifyNever(() => stderr.writeln(any()));
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('print $left && $right;');
+          expect(logger.logs, orderedEquals([(left && right).toString()]));
         });
       }
     }
@@ -190,32 +121,16 @@ if (false) {
     test(
       'The while loop should loop on the body while the condition is true',
       () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 var a = 0;
 while (a < 4) {
   print a;
   a = a + 1;
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
 
-        final stdoutCaptured = verify(
-          () => stdout.writeln(captureAny()),
-        ).captured;
-        expect(
-            stdoutCaptured,
-            orderedEquals(
-              const [0, 1, 2, 3],
-            ));
-
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['0', '1', '2', '3']));
       },
     );
   });
@@ -224,30 +139,14 @@ while (a < 4) {
     test(
       'It should loop 5 times and print the index',
       () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 for(var index = 0; index < 5; index = index + 1) {
   print index;
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
 
-        final stdoutCaptured = verify(
-          () => stdout.writeln(captureAny()),
-        ).captured;
-        expect(
-            stdoutCaptured,
-            orderedEquals(
-              const [0, 1, 2, 3, 4],
-            ));
-
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['0', '1', '2', '3', '4']));
       },
     );
   });
@@ -256,23 +155,18 @@ for(var index = 0; index < 5; index = index + 1) {
     test(
       'It should define an call the function',
       () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 fun f(first, last) {
   print 'prefix ' + first + ' infix ' + last + ' suffix';
 }
 f('one', 'two');
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
 
-        verify(() => stdout.writeln('prefix one infix two suffix')).called(1);
-        verifyNever(() => stderr.writeln(any()));
+        expect(
+          logger.logs,
+          orderedEquals(const ['prefix one infix two suffix']),
+        );
       },
     );
   });
@@ -282,18 +176,10 @@ f('one', 'two');
       test(
         'It should multiply 2 numbers',
         () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('print 2 * 4;');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('print 2 * 4;');
 
-          verify(() => stdout.writeln(8)).called(1);
-          verifyNever(() => stderr.writeln(any()));
+          expect(logger.logs, orderedEquals(const ['8']));
         },
       );
     });
@@ -302,81 +188,54 @@ f('one', 'two');
   group('Resolver', () {
     group('Errors', () {
       test('It should report a return statement that is not in a function', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('return 1;');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('return 1;');
+        expect(
+          logger.logs,
+          orderedEquals(const ['[1:7] Cannot return from top-level code.']),
         );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln('[1:7] Cannot return from top-level code.'),
-        ).called(1);
       });
 
       test(
           'It should report a variable that is already declared in the current scope',
           () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 {
   var a = 1;
   var a = 2;
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
+        expect(
+          logger.logs,
+          orderedEquals(const [
+            '[3:7] There is already a variable with the name "a" in this scope.'
+          ]),
         );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
-            '[3:7] There is already a variable with the name "a" in this scope.',
-          ),
-        ).called(1);
       });
     });
 
     test('It should report a variable that read itself', () {
-      final stdout = _MockStdout();
-      final stderr = _MockStdout();
-      IOOverrides.runZoned(
-        () {
-          Ntm().run('''
+      final logger = AccumulatorLogger();
+      Ntm(logger: logger).run('''
 var a = 0;
 {
   var a = a;
 }
 ''');
-        },
-        stdout: () => stdout,
-        stderr: () => stderr,
+      expect(
+        logger.logs,
+        orderedEquals(const [
+          '[3:11] Cannot read local variable in its own initializer.'
+        ]),
       );
-
-      verifyNever(() => stdout.writeln(any()));
-      verify(
-        () => stderr.writeln(
-          '[3:11] Cannot read local variable in its own initializer.',
-        ),
-      ).called(1);
     });
   });
 
   group('Class', () {
     test('It should print the class', () {
-      final stdout = _MockStdout();
-      final stderr = _MockStdout();
-      IOOverrides.runZoned(
-        () {
-          Ntm().run('''
+      final logger = AccumulatorLogger();
+      Ntm(logger: logger).run('''
 class MyClass {
   myMethod() {
     return null;
@@ -387,24 +246,15 @@ print MyClass;
 var myInstance = MyClass();
 print myInstance;
 ''');
-        },
-        stdout: () => stdout,
-        stderr: () => stderr,
+      expect(
+        logger.logs,
+        orderedEquals(const ['MyClass', 'MyClass instance']),
       );
-
-      final stdoutCaptured = verify(
-        () => stdout.writeln(captureAny()),
-      ).captured;
-      expect(stdoutCaptured, const ['MyClass', 'MyClass instance']);
-      verifyNever(() => stderr.writeln(any()));
     });
     group('Field', () {
       test('It should set and get the class field', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   var myField;
 }
@@ -412,71 +262,49 @@ var myInstance = MyClass();
 myInstance.myField = 'myValue';
 print myInstance.myField;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
+        expect(
+          logger.logs,
+          orderedEquals(const ['myValue']),
         );
-
-        verify(() => stdout.writeln('myValue')).called(1);
-        verifyNever(() => stderr.writeln(any()));
       });
 
       test(
           'It should raise an error when a field that does not exist is accessed',
           () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {}
 var myInstance = MyClass();
 myInstance.myField;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
+        expect(
+          logger.logs,
+          orderedEquals(const ['[3:18] Undefined property "myField".']),
         );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln('[3:18] Undefined property "myField".'),
-        ).called(1);
       });
 
       test(
           'It should raise an error when a field that has not been initialized is accessed',
           () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   var myField;
 }
 var myInstance = MyClass();
 myInstance.myField;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
-            '[5:18] The field "myField" is not initialized.',
+        expect(
+          logger.logs,
+          orderedEquals(
+            const ['[5:18] The field "myField" is not initialized.'],
           ),
-        ).called(1);
+        );
       });
 
       test('It should initialize a field with an initializer', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   var a;
   var b = 2;
@@ -485,22 +313,13 @@ class MyClass {
 var instance = MyClass();
 print instance.b;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verify(() => stdout.writeln(2)).called(1);
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['2']));
       });
       test(
         'It should initialize a field with an initializer when the instance is created',
         () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('''
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('''
 var variable = 1;
 class MyClass {
   var a = variable;
@@ -512,24 +331,17 @@ variable = 2;
 instance = MyClass();
 print instance.a;
 ''');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
+          expect(
+            logger.logs,
+            orderedEquals(const ['1', '2']),
           );
-
-          final captured = verify(() => stdout.writeln(captureAny())).captured;
-          expect(captured, orderedEquals(const [1, 2]));
-          verifyNever(() => stderr.writeln(any()));
         },
       );
       test(
         'It should initialize a field with an initializer referring to the correct variable when the instance is created',
         () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('''
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('''
 var variable = 1;
 class MyClass {
   var a = variable;
@@ -548,25 +360,18 @@ class MyClass {
   }
 }
 ''');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
+          expect(
+            logger.logs,
+            orderedEquals(const ['1', '2', '2']),
           );
-
-          final captured = verify(() => stdout.writeln(captureAny())).captured;
-          expect(captured, orderedEquals(const [1, 2, 2]));
-          verifyNever(() => stderr.writeln(any()));
         },
       );
     });
 
     group('Method', () {
       test('It should access the method of the class', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   method() {
     print 'method';
@@ -574,21 +379,12 @@ class MyClass {
 }
 MyClass().method();
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verify(() => stdout.writeln('method')).called(1);
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['method']));
       });
 
       test('It should be able to access this', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   var field = 'field';
   method() {
@@ -598,40 +394,23 @@ class MyClass {
 var instance = MyClass();
 instance.method();
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verify(() => stdout.writeln('field in method')).called(1);
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['field in method']));
       });
 
       test('It should not allow to access "this" when not in a class', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('this;');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('this;');
+        expect(
+          logger.logs,
+          orderedEquals(const ['[1:5] Cannot use "this" outside a class.']),
         );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln('[1:5] Cannot use "this" outside a class.'),
-        ).called(1);
       });
     });
 
     group('init', () {
       test('It should init the field when the instance is created', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   var field0;
   var field1;
@@ -644,75 +423,43 @@ var instance = MyClass(2);
 print instance.field0;
 print instance.field1;
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        final stdoutCaptured = verify(
-          () => stdout.writeln(captureAny()),
-        ).captured;
-        expect(
-          stdoutCaptured,
-          const ['field0', 2],
-        );
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const ['field0', '2']));
       });
 
       test('It should raise an error if the init method returns a value', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   init(field1) {
     return 2;
   }
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
-            '[3:10] Cannot return a value from an initializer.',
+        expect(
+          logger.logs,
+          orderedEquals(
+            const ['[3:10] Cannot return a value from an initializer.'],
           ),
-        ).called(1);
+        );
       });
 
       test('It should accept empty return in the init method', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class MyClass {
   init(field1) {
     return;
   }
 }
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verifyNever(() => stdout.writeln(any()));
-        verifyNever(() => stderr.writeln(any()));
+        expect(logger.logs, orderedEquals(const []));
       });
     });
 
     group('Inheritance', () {
       test('It should inherit the method from the super class', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 class SuperClass {
   superMethod() {
     print 'superMethod';
@@ -729,70 +476,42 @@ var instance = SubClass();
 instance.superMethod();
 instance.subMethod();
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        final stdoutCaptured = verify(
-          () => stdout.writeln(captureAny()),
-        ).captured;
         expect(
-          stdoutCaptured,
-          const ['superMethod', 'subMethod'],
+          logger.logs,
+          orderedEquals(const ['superMethod', 'subMethod']),
         );
-        verifyNever(() => stderr.writeln(any()));
       });
 
       test('It should only allow class to inherit from another class', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('''
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('''
 var NotAClass = 'I am totally not a class';
 
 class Subclass < NotAClass {}
 ''');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
+        expect(
+          logger.logs,
+          orderedEquals(const [
             '[3:26] Superclass must be a class, but "NotAClass" is not, so "Subclass" cannot inherit from it.',
-          ),
-        ).called(1);
+          ]),
+        );
       });
 
       test('It should not allow a class to extend itself', () {
-        final stdout = _MockStdout();
-        final stderr = _MockStdout();
-        IOOverrides.runZoned(
-          () {
-            Ntm().run('class MyClass < MyClass {}');
-          },
-          stdout: () => stdout,
-          stderr: () => stderr,
-        );
-
-        verifyNever(() => stdout.writeln(any()));
-        verify(
-          () => stderr.writeln(
-            '[1:24] Class "MyClass" cannot inherit from itself.',
+        final logger = AccumulatorLogger();
+        Ntm(logger: logger).run('class MyClass < MyClass {}');
+        expect(
+          logger.logs,
+          orderedEquals(
+            const ['[1:24] Class "MyClass" cannot inherit from itself.'],
           ),
-        ).called(1);
+        );
       });
 
       group('super', () {
         test('It should call the super method', () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('''
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('''
 class SuperClass {
   method() {
     print 'superMethod';
@@ -809,29 +528,17 @@ class SubClass < SuperClass {
 var instance = SubClass();
 instance.method();
 ''');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
-
-          final stdoutCaptured = verify(
-            () => stdout.writeln(captureAny()),
-          ).captured;
           expect(
-            stdoutCaptured,
-            const ['superMethod', 'subMethod'],
+            logger.logs,
+            orderedEquals(const ['superMethod', 'subMethod']),
           );
-          verifyNever(() => stderr.writeln(any()));
         });
 
         test(
           'It throw an error when calling a super method that does not exist',
           () {
-            final stdout = _MockStdout();
-            final stderr = _MockStdout();
-            IOOverrides.runZoned(
-              () {
-                Ntm().run('''
+            final logger = AccumulatorLogger();
+            Ntm(logger: logger).run('''
 class SuperClass {}
 
 class SubClass < SuperClass {
@@ -843,64 +550,46 @@ class SubClass < SuperClass {
 var instance = SubClass();
 instance.method();
 ''');
-              },
-              stdout: () => stdout,
-              stderr: () => stderr,
-            );
-
-            verifyNever(() => stdout.writeln(any()));
-            verify(
-              () => stderr.writeln(
-                '[5:16] Undefined super property "method".',
+            expect(
+              logger.logs,
+              orderedEquals(
+                const [
+                  '[5:16] Undefined super property "method".',
+                  '[5:18] Can only call functions and classes.'
+                ],
               ),
-            ).called(1);
+            );
           },
         );
 
         test('It throw an error when super is used outside a class', () {
-          final stdout = _MockStdout();
-          final stderr = _MockStdout();
-          IOOverrides.runZoned(
-            () {
-              Ntm().run('super.method();');
-            },
-            stdout: () => stdout,
-            stderr: () => stderr,
-          );
-
-          verifyNever(() => stdout.writeln(any()));
-          verify(
-            () => stderr.writeln(
-              '[1:6] Cannot use "super" outside of a class.',
+          final logger = AccumulatorLogger();
+          Ntm(logger: logger).run('super.method();');
+          expect(
+            logger.logs,
+            orderedEquals(
+              const ['[1:6] Cannot use "super" outside of a class.'],
             ),
-          ).called(1);
+          );
         });
 
         test(
           'It throw an error when super is used in a class that do not extend another class',
           () {
-            final stdout = _MockStdout();
-            final stderr = _MockStdout();
-            IOOverrides.runZoned(
-              () {
-                Ntm().run('''
+            final logger = AccumulatorLogger();
+            Ntm(logger: logger).run('''
 class MyClass {
   method() {
     super.method();
   }
 }
 ''');
-              },
-              stdout: () => stdout,
-              stderr: () => stderr,
-            );
-
-            verifyNever(() => stdout.writeln(any()));
-            verify(
-              () => stderr.writeln(
+            expect(
+              logger.logs,
+              orderedEquals(const [
                 '[3:9] Cannot use "super" in a class with no superclass.',
-              ),
-            ).called(1);
+              ]),
+            );
           },
         );
       });
