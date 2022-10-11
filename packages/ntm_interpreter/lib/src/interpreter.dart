@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:ntm_ast/ntm_ast.dart';
 import 'package:ntm_core/ntm_core.dart';
 import 'package:ntm_interpreter/src/environment.dart';
@@ -19,12 +17,13 @@ import 'ntm_instance.dart';
 class Interpreter
     implements ExpressionVisitor<Object?>, StatementVisitor<void> {
   /// {@macro ntm.interpreter}
-  Interpreter() {
+  Interpreter({
+    this.logger,
+  }) {
     globals.define('clock', const Clock());
   }
 
-  /// The runtime errors.
-  final errors = <RuntimeError>[];
+  final NtmLogger? logger;
 
   /// The global environment.
   final globals = Environment();
@@ -174,10 +173,10 @@ class Interpreter
     final method = superclass.findMethod(expression.method.lexeme);
 
     if (method == null) {
-      errors.add(RuntimeError(
+      logger?.log(DescribableLog(RuntimeError(
         token: expression.method,
         message: 'Undefined super property "${expression.method.lexeme}".',
-      ));
+      )));
       return null;
     } else {
       return method.bind(object);
@@ -251,11 +250,11 @@ class Interpreter
     if (statement.superclass != null) {
       final potentialSuperClass = evaluate(statement.superclass!);
       if (potentialSuperClass is! NtmClass) {
-        errors.add(RuntimeError(
+        logger?.log(DescribableLog(RuntimeError(
           token: statement.superclass!.name,
           message:
               'Superclass must be a class, but "${statement.superclass!.name.lexeme}" is not, so "${statement.name.lexeme}" cannot inherit from it.',
-        ));
+        )));
         superclass = null;
       } else {
         superclass = potentialSuperClass;
@@ -327,9 +326,9 @@ class Interpreter
   void visitPrintStatement(PrintStatement statement) {
     final value = evaluate(statement.expression);
     if (value is Describable) {
-      stdout.writeln(value.describe());
+      logger?.log(DescribableLog(value));
     } else {
-      stdout.writeln(value);
+      logger?.log(ObjectLog(value));
     }
   }
 
@@ -350,7 +349,7 @@ class Interpreter
         _execute(statement);
       }
     } on RuntimeError catch (error) {
-      errors.add(error);
+      logger?.log(DescribableLog(error));
     }
   }
 
