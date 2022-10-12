@@ -2,7 +2,11 @@ import 'dart:io';
 
 import 'package:ntm/ntm.dart';
 
-final _ntm = Ntm();
+import 'logger.dart';
+
+final _ntm = Ntm(
+  logger: const Logger(),
+);
 
 /// Runs a dart file
 void runFile(String path) {

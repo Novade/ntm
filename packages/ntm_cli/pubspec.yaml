@@ -9,6 +9,8 @@ environment:
 dependencies:
   ntm:
     path: ../ntm
+  ntm_core:
+    path: ../ntm_core
 
 dev_dependencies:
   lints: ^2.0.0
